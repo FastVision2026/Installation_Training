@@ -1,0 +1,852 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="دليل قسم التركيبات التفاعلي في Fast Vision — السلامة، المعاينة، التثبيت، أصول تركيب كل شاشة، والتسليم.">
+<style>html,body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>دليل قسم التركيبات | Fast Vision</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#25505F">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Readex+Pro:wght@500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: sticky chapter rail (right in RTL) + one chapter on stage at a time, like a site binder with tabbed dividers */
+:root{
+  --bg:#F3F6F6; --surface:#FFFFFF; --surface-2:#E8EFF0; --fg:#14262B; --muted:#56696E; --line:#D3DEE0;
+  --brand:#25505F; --brand-ink:#FFFFFF; --brand-soft:#DCEAED;
+  --hazard:#C77A12; --hazard-soft:#FBEFD9; --danger:#B3362B; --danger-soft:#F8E1DE; --ok:#2E7D4F; --ok-soft:#DDF0E4;
+  --f-display:"Readex Pro","IBM Plex Sans Arabic",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans Arabic",system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0E181B; --surface:#152328; --surface-2:#1C2E34; --fg:#E2ECEE; --muted:#9AAEB3; --line:#2A3F45;
+  --brand:#6FB0C2; --brand-ink:#0E181B; --brand-soft:#1D3A43;
+  --hazard:#E7A447; --hazard-soft:#3A2C14; --danger:#EF7E73; --danger-soft:#3D1F1C; --ok:#6CC891; --ok-soft:#173326; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E181B; --surface:#152328; --surface-2:#1C2E34; --fg:#E2ECEE; --muted:#9AAEB3; --line:#2A3F45;
+  --brand:#6FB0C2; --brand-ink:#0E181B; --brand-soft:#1D3A43;
+  --hazard:#E7A447; --hazard-soft:#3A2C14; --danger:#EF7E73; --danger-soft:#3D1F1C; --ok:#6CC891; --ok-soft:#173326; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15.5px;line-height:1.75}
+body:not(.en) x-e{display:none} body.en x-a{display:none}
+h1,h2,h3,h4{font-family:var(--f-display);line-height:1.35;text-wrap:balance;margin:0}
+a{color:var(--brand)}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.mono,.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+
+/* top bar */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--brand);color:#fff;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px;
+  display:flex;align-items:center;gap:12px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--brand)}
+.top .brand{font-family:var(--f-display);font-weight:700;font-size:17px;letter-spacing:.2px}
+.top .sub{opacity:.8;font-size:13px}
+.top .sp{flex:1}
+.menu-btn{display:none;background:transparent;border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:8px;padding:4px 10px;cursor:pointer}
+.lang{background:#fff;color:#25505F;border:0;border-radius:999px;padding:3px 12px;font-weight:600;cursor:pointer}
+.pbar{display:flex;align-items:center;gap:8px;font-size:13px}
+.pbar .track{width:90px;height:6px;border-radius:9px;background:rgba(255,255,255,.25);overflow:hidden}
+.pbar .fill{height:100%;background:#fff;width:0;transition:width .4s}
+
+.shell{display:grid;grid-template-columns:290px minmax(0,1fr);gap:0;min-height:100%}
+nav.rail{position:sticky;top:calc(52px + env(safe-area-inset-top,0px));align-self:start;height:calc(100vh - 52px);overflow:auto;
+  border-inline-end:1px solid var(--line);background:var(--surface);padding:18px 14px 40px}
+.rail h4{font-size:12px;letter-spacing:.6px;color:var(--muted);text-transform:uppercase;margin:16px 8px 6px;font-weight:600}
+.rail a{display:flex;gap:10px;align-items:flex-start;text-decoration:none;color:var(--fg);padding:7px 8px;border-radius:8px;font-size:14.5px;line-height:1.45}
+.rail a:hover{background:var(--surface-2)}
+.rail a.on{background:var(--brand-soft);color:var(--fg);font-weight:600}
+.rail a .k{flex:none;width:24px;height:24px;border-radius:6px;display:grid;place-items:center;font-family:var(--f-mono);font-size:12px;background:var(--surface-2);color:var(--muted)}
+.rail a.on .k{background:var(--brand);color:var(--brand-ink)}
+.rail a.done .k{background:var(--ok);color:#fff}
+.rail button.reset{margin:8px;background:none;border:1px dashed var(--line);color:var(--muted);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:13px}
+
+main{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 80px;min-width:0}
+.wrap{max-width:920px;margin-inline:auto;display:flex;flex-direction:column;gap:28px}
+section.ch{display:none} section.ch.show{display:block}
+.ch>.wrap>*{min-width:0}
+.eyebrow{font-size:13px;font-weight:600;color:var(--brand);letter-spacing:.4px}
+.ch h2{font-size:clamp(24px,3.2vw,32px);margin-top:4px}
+.lead{color:var(--muted);font-size:16.5px;max-width:68ch;margin:10px 0 0}
+h3{font-size:19px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+h3 .tag{font-family:var(--f-body);font-size:12px;font-weight:500;color:var(--muted);background:var(--surface-2);border-radius:999px;padding:1px 10px}
+.blk{display:flex;flex-direction:column;gap:12px}
+p{margin:0}
+
+/* callouts */
+.note{border-radius:var(--r);padding:12px 16px;background:var(--brand-soft);font-size:15px}
+.note.warn{background:var(--hazard-soft)}
+.note.stop{background:var(--danger-soft)}
+.note b:first-child{color:var(--brand)} .note.warn b:first-child{color:var(--hazard)} .note.stop b:first-child{color:var(--danger)}
+
+/* hazard stripe header for safety chapter */
+.stripe{height:8px;border-radius:4px;background:repeating-linear-gradient(-45deg,var(--hazard) 0 12px,transparent 12px 24px);opacity:.85}
+
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+.card b{font-family:var(--f-display);font-weight:600}
+.card small{color:var(--muted);font-size:13.5px;line-height:1.6}
+
+/* flip */
+.flips{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}
+.flip{perspective:900px;height:170px;cursor:pointer;border:0;background:none;padding:0;text-align:start}
+.flip .in{position:relative;width:100%;height:100%;transition:transform .55s;transform-style:preserve-3d}
+.flip.on .in{transform:rotateY(180deg)}
+.flip .f,.flip .b{position:absolute;inset:0;backface-visibility:hidden;border-radius:var(--r);padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+.flip .f{background:var(--surface);border:1px solid var(--line)}
+.flip .f b{font-family:var(--f-display);font-size:17px}
+.flip .f .n{font-family:var(--f-mono);color:var(--brand);font-size:13px}
+.flip .f .h{margin-top:auto;color:var(--muted);font-size:12.5px}
+.flip .b{background:var(--brand);color:var(--brand-ink);transform:rotateY(180deg);font-size:14px;line-height:1.6;overflow:auto}
+
+/* tables */
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14.5px;min-width:560px}
+th,td{padding:10px 12px;text-align:start;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--surface-2);font-weight:600;font-size:13.5px}
+tr:last-child td{border-bottom:0}
+
+/* steps timeline */
+ol.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:0;counter-reset:s}
+ol.steps li{counter-increment:s;position:relative;padding-inline-start:46px;padding-bottom:14px}
+ol.steps li::before{content:counter(s);position:absolute;inset-inline-start:0;top:0;width:30px;height:30px;border-radius:50%;background:var(--brand);color:var(--brand-ink);display:grid;place-items:center;font-family:var(--f-mono);font-size:13px}
+ol.steps li::after{content:"";position:absolute;inset-inline-start:14px;top:32px;bottom:2px;width:2px;background:var(--line)}
+ol.steps li:last-child::after{display:none}
+ol.steps b{font-family:var(--f-display);font-weight:600}
+
+/* type picker */
+.picker{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 14px;cursor:pointer;font-size:14px}
+.chip[aria-pressed="true"]{background:var(--brand);border-color:var(--brand);color:var(--brand-ink);font-weight:600}
+.typecard{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.typecard header{padding:18px 20px;background:var(--surface-2);display:flex;flex-direction:column;gap:6px}
+.typecard header h3{font-size:22px}
+.spec{display:flex;flex-wrap:wrap;gap:6px}
+.spec span{font-size:12.5px;border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:1px 8px;color:var(--muted)}
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);padding:0 12px;overflow-x:auto}
+.tabs button{border:0;background:none;padding:10px 12px;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;white-space:nowrap;font-size:14.5px}
+.tabs button[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--brand);font-weight:600}
+.tabpane{padding:18px 20px}
+ul.list{margin:0;padding-inline-start:20px;display:flex;flex-direction:column;gap:6px}
+ul.no{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}
+ul.no li{display:flex;gap:10px;align-items:flex-start;background:var(--danger-soft);border-radius:8px;padding:8px 12px;font-size:14.5px}
+ul.no li::before{content:"✕";color:var(--danger);font-weight:700;flex:none}
+
+/* checklists */
+.checks{display:flex;flex-direction:column;gap:6px}
+.checks label{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:9px 12px;cursor:pointer;font-size:14.5px}
+.checks input{margin-top:5px;accent-color:var(--brand);width:17px;height:17px;flex:none}
+.checks label:has(input:checked){border-color:var(--ok);background:var(--ok-soft)}
+.cmeter{font-size:13px;color:var(--muted)}
+
+/* tools */
+.tool{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px 20px;display:flex;flex-direction:column;gap:14px}
+.form{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(180px,1fr))}
+.form label{display:flex;flex-direction:column;gap:4px;font-size:13.5px;color:var(--muted)}
+.form input,.form select{border:1px solid var(--line);background:var(--bg);border-radius:8px;padding:8px 10px;font-size:15px;color:var(--fg);width:100%}
+.out{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}
+.out div{background:var(--surface-2);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column}
+.out small{color:var(--muted);font-size:12.5px}
+.out b{font-family:var(--f-mono);font-size:18px;font-variant-numeric:tabular-nums}
+.verdict{border-radius:8px;padding:10px 14px;font-weight:600}
+.verdict.ok{background:var(--ok-soft);color:var(--ok)} .verdict.bad{background:var(--danger-soft);color:var(--danger)} .verdict.mid{background:var(--hazard-soft);color:var(--hazard)}
+.btn{background:var(--brand);color:var(--brand-ink);border:0;border-radius:8px;padding:9px 18px;cursor:pointer;font-weight:600}
+.btn.ghost{background:transparent;color:var(--brand);border:1px solid var(--brand)}
+.wall-sketch{width:100%;max-width:360px;height:auto}
+
+/* scenario + quiz */
+.opt{display:block;width:100%;text-align:start;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:10px 14px;cursor:pointer;margin-bottom:8px;font-size:14.5px}
+.opt:hover{border-color:var(--brand)}
+.opt.right{border-color:var(--ok);background:var(--ok-soft)} .opt.wrong{border-color:var(--danger);background:var(--danger-soft)}
+.fb{border-radius:8px;padding:10px 14px;font-size:14.5px}
+.q{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+.q h4{font-family:var(--f-body);font-size:15.5px;font-weight:600;margin-bottom:10px}
+.q .opt{margin-bottom:6px}
+.cert{border:2px solid var(--brand);border-radius:14px;padding:28px 24px;text-align:center;background:var(--surface);display:flex;flex-direction:column;gap:10px;align-items:center}
+.cert .nm{font-family:var(--f-display);font-size:26px;color:var(--brand)}
+.done-row{display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:18px}
+.gloss input{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:9px 12px;width:100%;max-width:360px}
+dl.terms{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin:0}
+dl.terms div{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 14px}
+dl.terms dt{font-family:var(--f-mono);font-weight:500;color:var(--brand)}
+dl.terms dd{margin:2px 0 0;font-size:14px;color:var(--fg)}
+footer.foot{color:var(--muted);font-size:13px;text-align:center;padding:30px 16px}
+
+@media (max-width:860px){
+  .shell{grid-template-columns:1fr}
+  .menu-btn{display:inline-block}
+  nav.rail{position:fixed;inset-block:calc(52px + env(safe-area-inset-top,0px)) 0;inset-inline-start:0;width:min(300px,86vw);height:auto;z-index:25;transform:translateX(105%);transition:transform .25s;box-shadow:0 0 30px rgba(0,0,0,.25)}
+  body.en nav.rail{transform:translateX(-105%)}
+  body.navopen nav.rail{transform:none}
+  .top .sub{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<header class="top">
+  <button class="menu-btn" id="menuBtn" aria-label="Menu">☰</button>
+  <div><div class="brand">Fast Vision</div><div class="sub"><x-a>دليل قسم التركيبات</x-a><x-e>Installation Department Guide</x-e></div></div>
+  <div class="sp"></div>
+  <div class="pbar"><div class="track"><div class="fill" id="pfill"></div></div><span class="num" id="ptxt">0%</span></div>
+  <button class="lang" id="langBtn">EN</button>
+</header>
+
+<div class="shell">
+<nav class="rail" id="rail">
+  <h4><x-a>الفصول</x-a><x-e>Chapters</x-e></h4>
+  <a href="#ch1" data-ch="ch1"><span class="k">1</span><span><x-a>دور قسم التركيبات</x-a><x-e>Role of the installation team</x-e></span></a>
+  <a href="#ch2" data-ch="ch2"><span class="k">2</span><span><x-a>السلامة المهنية أولًا</x-a><x-e>Safety first</x-e></span></a>
+  <a href="#ch3" data-ch="ch3"><span class="k">3</span><span><x-a>المعاينة وجاهزية الموقع</x-a><x-e>Site survey &amp; readiness</x-e></span></a>
+  <a href="#ch4" data-ch="ch4"><span class="k">4</span><span><x-a>الجدران والتثبيت والأدوات</x-a><x-e>Walls, anchors &amp; tools</x-e></span></a>
+  <a href="#ch5" data-ch="ch5"><span class="k">5</span><span><x-a>أصول تركيب كل شاشة</x-a><x-e>How each display is installed</x-e></span></a>
+  <a href="#ch6" data-ch="ch6"><span class="k">6</span><span><x-a>الكهرباء والكابلات والتأريض</x-a><x-e>Power, cabling &amp; earthing</x-e></span></a>
+  <a href="#ch7" data-ch="ch7"><span class="k">7</span><span><x-a>التشغيل والفحص والتسليم</x-a><x-e>Commissioning &amp; handover</x-e></span></a>
+  <a href="#ch8" data-ch="ch8"><span class="k">8</span><span><x-a>السلوك في الموقع والضمان</x-a><x-e>Site conduct &amp; warranty</x-e></span></a>
+  <h4><x-a>أدوات وتقييم</x-a><x-e>Tools &amp; assessment</x-e></h4>
+  <a href="#tools" data-ch="tools"><span class="k">⚙</span><span><x-a>حاسبات التركيب</x-a><x-e>Installation calculators</x-e></span></a>
+  <a href="#cases" data-ch="cases"><span class="k">?</span><span><x-a>سيناريوهات من الموقع</x-a><x-e>Field scenarios</x-e></span></a>
+  <a href="#exam" data-ch="exam"><span class="k">★</span><span><x-a>الاختبار النهائي والشهادة</x-a><x-e>Final exam &amp; certificate</x-e></span></a>
+  <a href="#terms" data-ch="terms"><span class="k">ا</span><span><x-a>قاموس المصطلحات</x-a><x-e>Glossary</x-e></span></a>
+  <button class="reset" id="resetBtn"><x-a>↺ تصفير التقدّم</x-a><x-e>↺ Reset progress</x-e></button>
+</nav>
+
+<main>
+
+<!-- CH1 -->
+<section class="ch" id="ch1"><div class="wrap">
+  <div><div class="eyebrow"><x-a>الفصل الأول</x-a><x-e>Chapter 1</x-e></div>
+  <h2><x-a>دور قسم التركيبات في المشروع</x-a><x-e>The installation team's role in a project</x-e></h2>
+  <p class="lead"><x-a>قسم التركيبات هو آخر من يلمس المشروع قبل العميل. أي خطأ في التركيب يظهر أمام العميل مباشرة، ويُحسب على الشركة كلها مهما كانت جودة المنتج.</x-a><x-e>Installation is the last team to touch a project before the client does. Any installation mistake is seen by the client directly and counts against the whole company, however good the product is.</x-e></p></div>
+
+  <div class="blk">
+    <h3><x-a>أين نقع في دورة المشروع</x-a><x-e>Where we sit in the project</x-e></h3>
+    <ol class="steps">
+      <li><b><x-a>استلام المشروع من المبيعات والهندسة</x-a><x-e>Receive the project from sales and engineering</x-e></b><br><x-a>عرض السعر المعتمد، المخططات، جدول الكميات (BOQ)، وأوراق المواصفات.</x-a><x-e>Approved quotation, drawings, BOQ and datasheets.</x-e></li>
+      <li><b><x-a>المعاينة الميدانية</x-a><x-e>Site survey</x-e></b><br><x-a>نتأكد أن الموقع يطابق المخطط، ونكتب أي نقص قبل الوصول بالمعدات.</x-a><x-e>We confirm the site matches the drawing and log any gap before arriving with equipment.</x-e></li>
+      <li><b><x-a>التحضير والتنسيق</x-a><x-e>Preparation and coordination</x-e></b><br><x-a>تصاريح الدخول، موعد التركيب، الفريق، الأدوات، ونقل المواد.</x-a><x-e>Site access permits, schedule, crew, tools and material transport.</x-e></li>
+      <li><b><x-a>التركيب والتثبيت</x-a><x-e>Installation</x-e></b><br><x-a>حسب أصول كل نوع شاشة (الفصل الخامس).</x-a><x-e>Following the rules of each display type (chapter 5).</x-e></li>
+      <li><b><x-a>التشغيل والفحص</x-a><x-e>Commissioning and testing</x-e></b><br><x-a>البرمجة، المعايرة، واختبار كل شاشة.</x-a><x-e>Programming, calibration and testing every screen.</x-e></li>
+      <li><b><x-a>التسليم ومحضر الاستلام</x-a><x-e>Handover and acceptance report</x-e></b><br><x-a>توقيع العميل، الصور، الأرقام التسلسلية، وتدريب سريع.</x-a><x-e>Client signature, photos, serial numbers and a short training.</x-e></li>
+    </ol>
+  </div>
+
+  <div class="blk">
+    <h3><x-a>المستندات التي يجب أن تكون معك قبل الخروج للموقع</x-a><x-e>Documents you must have before leaving for site</x-e></h3>
+    <div class="grid">
+      <div class="card"><b><x-a>المخطط المعتمد</x-a><x-e>Approved drawing</x-e></b><small><x-a>موقع كل شاشة، ارتفاعها، ومسار الكابلات — معتمد من العميل.</x-a><x-e>Each screen's position, height and cable route — approved by the client.</x-e></small></div>
+      <div class="card"><b><x-a>جدول الكميات وقائمة التعبئة</x-a><x-e>BOQ and packing list</x-e></b><small><x-a>طابِق الصناديق مع القائمة قبل التحميل، لا في الموقع.</x-a><x-e>Match the boxes with the list before loading, not on site.</x-e></small></div>
+      <div class="card"><b><x-a>أوراق المواصفات ودليل التركيب</x-a><x-e>Datasheets and installation manual</x-e></b><small><x-a>الوزن، فتحات VESA، مسافات التهوية، واتجاه التدوير.</x-a><x-e>Weight, VESA pattern, ventilation clearances and rotation direction.</x-e></small></div>
+      <div class="card"><b><x-a>طريقة التنفيذ (Method Statement)</x-a><x-e>Method statement</x-e></b><small><x-a>تطلبها أغلب المشاريع الكبيرة والجهات الحكومية قبل السماح بالعمل.</x-a><x-e>Required by most large projects and government sites before work is allowed.</x-e></small></div>
+      <div class="card"><b><x-a>تصريح الدخول وأسماء الفريق</x-a><x-e>Gate pass and crew names</x-e></b><small><x-a>بالهويات وأرقام لوحات السيارات إن طُلب.</x-a><x-e>With IDs and vehicle plate numbers if requested.</x-e></small></div>
+      <div class="card"><b><x-a>نموذج محضر الاستلام</x-a><x-e>Acceptance report form</x-e></b><small><x-a>لا تغادر الموقع بعد التسليم بدون توقيع.</x-a><x-e>Never leave site after handover without a signature.</x-e></small></div>
+    </div>
+  </div>
+
+  <div class="note"><b><x-a>الفكرة المفتاحية:</x-a><x-e>Key idea:</x-e></b> <x-a>فنّي التركيب ليس "من يعلّق الشاشة". هو من يقرر إن كان الموقع جاهزًا، ومن يملك حق إيقاف العمل إذا كان التركيب غير آمن.</x-a><x-e>The installer is not "the one who hangs the screen". He decides whether the site is ready, and he has the right to stop work if the installation is unsafe.</x-e></div>
+
+  <div class="done-row"><button class="btn" data-done="ch1"><x-a>أنهيت الفصل ←</x-a><x-e>Mark chapter done →</x-e></button></div>
+</div></section>
+
+<!-- CH2 -->
+<section class="ch" id="ch2"><div class="wrap">
+  <div class="stripe"></div>
+  <div><div class="eyebrow"><x-a>الفصل الثاني</x-a><x-e>Chapter 2</x-e></div>
+  <h2><x-a>السلامة المهنية أولًا</x-a><x-e>Safety first</x-e></h2>
+  <p class="lead"><x-a>لا يوجد موعد تسليم يستحق إصابة. الشاشات ثقيلة، والعمل غالبًا على ارتفاع وقرب الكهرباء. هذه القواعد غير قابلة للتفاوض.</x-a><x-e>No deadline is worth an injury. Screens are heavy, and work is often at height and near electricity. These rules are not negotiable.</x-e></p></div>
+
+  <div class="blk">
+    <h3><x-a>القواعد الذهبية</x-a><x-e>Golden rules</x-e> <span class="tag"><x-a>اقلب البطاقة</x-a><x-e>flip the card</x-e></span></h3>
+    <div class="flips">
+      <button class="flip"><div class="in"><div class="f"><span class="n">01</span><b><x-a>معدات الوقاية</x-a><x-e>PPE</x-e></b><span class="h"><x-a>اقلب ↺</x-a><x-e>flip ↺</x-e></span></div><div class="b"><x-a>خوذة، حذاء سلامة، قفازات، ونظارات عند الحفر. حزام أمان كامل (Harness) فوق الارتفاع المحدد في الموقع. سترة عاكسة في المواقع الإنشائية.</x-a><x-e>Helmet, safety shoes, gloves, and glasses when drilling. A full-body harness above the site's height limit. A hi-vis vest on construction sites.</x-e></div></div></button>
+      <button class="flip"><div class="in"><div class="f"><span class="n">02</span><b><x-a>العمل على ارتفاع</x-a><x-e>Working at height</x-e></b><span class="h"><x-a>اقلب ↺</x-a><x-e>flip ↺</x-e></span></div><div class="b"><x-a>سقالة أو رافعة مقصية بدلًا من السلّم كلما أمكن. السلم يُثبَّت ويُمسَك من شخص ثانٍ، ولا تقف على آخر درجتين.</x-a><x-e>Use a scaffold or scissor lift instead of a ladder whenever possible. A ladder is secured and held by a second person; never stand on the top two steps.</x-e></div></div></button>
+      <button class="flip"><div class="in"><div class="f"><span class="n">03</span><b><x-a>الرفع والحمل</x-a><x-e>Lifting</x-e></b><span class="h"><x-a>اقلب ↺</x-a><x-e>flip ↺</x-e></span></div><div class="b"><x-a>أي شاشة 55″ فأكبر يرفعها شخصان على الأقل، وما فوق 85″ أو الأوزان الكبيرة تحتاج فريقًا أو أداة رفع. ارفع بالركبتين لا بالظهر، وأمسك من المقابض والإطار.</x-a><x-e>Any screen 55″ or larger is lifted by at least two people; above 85″ or heavy loads need a team or a lifting aid. Lift with your knees, not your back, and hold by handles and frame.</x-e></div></div></button>
+      <button class="flip"><div class="in"><div class="f"><span class="n">04</span><b><x-a>الكهرباء</x-a><x-e>Electricity</x-e></b><span class="h"><x-a>اقلب ↺</x-a><x-e>flip ↺</x-e></span></div><div class="b"><x-a>افصل القاطع وضع عليه بطاقة "لا تشغّل" (Lockout/Tagout) قبل أي توصيل. افحص بجهاز القياس، لا تفترض أن الخط مفصول.</x-a><x-e>Switch off the breaker and tag it "do not operate" (lockout/tagout) before any connection. Test with a meter; never assume a line is dead.</x-e></div></div></button>
+      <button class="flip"><div class="in"><div class="f"><span class="n">05</span><b><x-a>قبل الحفر</x-a><x-e>Before drilling</x-e></b><span class="h"><x-a>اقلب ↺</x-a><x-e>flip ↺</x-e></span></div><div class="b"><x-a>استخدم كاشف المعادن والكهرباء على الجدار. لا تحفر عموديًا فوق أو تحت نقطة كهرباء، فهناك غالبًا تمديد مخفي.</x-a><x-e>Run a metal and live-wire detector over the wall. Never drill directly above or below an electrical point; there is usually a hidden conduit.</x-e></div></div></button>
+      <button class="flip"><div class="in"><div class="f"><span class="n">06</span><b><x-a>حق الإيقاف</x-a><x-e>Right to stop</x-e></b><span class="h"><x-a>اقلب ↺</x-a><x-e>flip ↺</x-e></span></div><div class="b"><x-a>أي عضو في الفريق يستطيع إيقاف العمل إذا رأى خطرًا. أوقف أولًا، ثم أبلغ مشرفك. لا أحد يُلام على إيقاف آمن.</x-a><x-e>Any crew member can stop work if he sees a hazard. Stop first, then inform your supervisor. Nobody is blamed for a safe stop.</x-e></div></div></button>
+    </div>
+  </div>
+
+  <div class="blk">
+    <h3><x-a>منطقة العمل</x-a><x-e>The work zone</x-e></h3>
+    <ul class="list">
+      <li><x-a>طوّق المنطقة تحت أي عمل على ارتفاع، وامنع مرور الناس، خاصة في المولات والمستشفيات أثناء الدوام.</x-a><x-e>Cordon off the area under any work at height and keep people out, especially in malls and hospitals during opening hours.</x-e></li>
+      <li><x-a>اربط الأدوات المستخدمة على ارتفاع بحبل، فسقوط مفك من 4 أمتار يكفي لإصابة شخص.</x-a><x-e>Tether tools used at height; a screwdriver falling from 4 m is enough to injure someone.</x-e></li>
+      <li><x-a>أبعِد الصناديق الفارغة والكابلات عن الممرات أولًا بأول.</x-a><x-e>Clear empty boxes and cables from walkways as you go.</x-e></li>
+      <li><x-a>الطوارئ: اعرف مكان طفاية الحريق ومخرج الطوارئ وصندوق الإسعافات قبل البدء.</x-a><x-e>Emergencies: know where the fire extinguisher, emergency exit and first-aid kit are before starting.</x-e></li>
+    </ul>
+  </div>
+
+  <div class="note stop"><b><x-a>ممنوع:</x-a><x-e>Never:</x-e></b> <x-a>العمل على ارتفاع بمفردك، أو تشغيل رافعة بدون شخص مؤهل، أو رفع وحدات LED خارجية في رياح قوية أو مطر.</x-a><x-e>work at height alone, operate a lift without a qualified person, or lift outdoor LED cabinets in strong wind or rain.</x-e></div>
+
+  <div class="done-row"><button class="btn" data-done="ch2"><x-a>أنهيت الفصل ←</x-a><x-e>Mark chapter done →</x-e></button></div>
+</div></section>
+
+<!-- CH3 -->
+<section class="ch" id="ch3"><div class="wrap">
+  <div><div class="eyebrow"><x-a>الفصل الثالث</x-a><x-e>Chapter 3</x-e></div>
+  <h2><x-a>المعاينة الميدانية وجاهزية الموقع</x-a><x-e>Site survey and readiness</x-e></h2>
+  <p class="lead"><x-a>نصف مشاكل التركيب تُكتشف في يوم التركيب لأن أحدًا لم يعاين الموقع جيدًا. المعاينة الجيدة توفر رحلة ثانية ويومًا ضائعًا للفريق.</x-a><x-e>Half of installation problems are discovered on installation day because nobody surveyed the site properly. A good survey saves a second trip and a lost crew day.</x-e></p></div>
+
+  <div class="blk">
+    <h3><x-a>ماذا تقيس وتسجّل في المعاينة</x-a><x-e>What to measure and record</x-e></h3>
+    <div class="tbl"><table>
+      <thead><tr><th><x-a>البند</x-a><x-e>Item</x-e></th><th><x-a>ماذا تتأكد منه</x-a><x-e>What to confirm</x-e></th><th><x-a>لماذا</x-a><x-e>Why</x-e></th></tr></thead>
+      <tbody>
+        <tr><td><x-a>نوع الجدار</x-a><x-e>Wall type</x-e></td><td><x-a>خرسانة، بلوك، جبس، زجاج، كلادينج</x-a><x-e>Concrete, block, gypsum, glass, cladding</x-e></td><td><x-a>يحدد نوع البراغي وهل نحتاج دعامة إضافية</x-a><x-e>Decides anchor type and whether backing is needed</x-e></td></tr>
+        <tr><td><x-a>الأبعاد الفعلية</x-a><x-e>Actual dimensions</x-e></td><td><x-a>العرض والارتفاع المتاح، والعوائق (أعمدة، مكيفات، رشاشات حريق)</x-a><x-e>Available width and height, obstacles (columns, AC, sprinklers)</x-e></td><td><x-a>قد لا يطابق المخطط الموقع الحقيقي</x-a><x-e>The drawing may not match reality</x-e></td></tr>
+        <tr><td><x-a>استواء الجدار</x-a><x-e>Wall flatness</x-e></td><td><x-a>بمسطرة ألمنيوم طويلة أو ليزر</x-a><x-e>With a long straight-edge or laser</x-e></td><td><x-a>حاسم للجدار المرئي وLED</x-a><x-e>Critical for video walls and LED</x-e></td></tr>
+        <tr><td><x-a>الكهرباء</x-a><x-e>Power</x-e></td><td><x-a>مواقع المقابس الكهربائية، القاطع المخصص، التأريض، الجهد</x-a><x-e>Outlet location, dedicated breaker, earthing, voltage</x-e></td><td><x-a>LED الكبيرة تحتاج دوائر مستقلة</x-a><x-e>Large LED needs dedicated circuits</x-e></td></tr>
+        <tr><td><x-a>الشبكة</x-a><x-e>Network</x-e></td><td><x-a>نقطة شبكة خلف كل شاشة، مسافة الكابل إلى غرفة الخوادم</x-a><x-e>Data point behind each screen, cable distance to the server room</x-e></td><td><x-a>إدارة المحتوى تعمل عبر الشبكة</x-a><x-e>Content management runs over the network</x-e></td></tr>
+        <tr><td><x-a>مسار الكابلات</x-a><x-e>Cable route</x-e></td><td><x-a>داخل الجدار، مجرى خارجي، سقف مستعار</x-a><x-e>In-wall, surface trunking, false ceiling</x-e></td><td><x-a>يؤثر على الشكل النهائي والوقت</x-a><x-e>Affects final look and time</x-e></td></tr>
+        <tr><td><x-a>التهوية والحرارة</x-a><x-e>Ventilation and heat</x-e></td><td><x-a>تكييف، فتحات، أشعة شمس مباشرة على الزجاج</x-a><x-e>AC, vents, direct sun through glass</x-e></td><td><x-a>الحرارة أول عدو للشاشات</x-a><x-e>Heat is the first enemy of displays</x-e></td></tr>
+        <tr><td><x-a>الوصول والنقل</x-a><x-e>Access</x-e></td><td><x-a>المصعد، عرض الأبواب، الدرج، مواقف التحميل</x-a><x-e>Lift, door widths, stairs, loading bay</x-e></td><td><x-a>صندوق شاشة 98″ قد لا يتّسع له المصعد</x-a><x-e>A 98″ box may not fit the lift</x-e></td></tr>
+        <tr><td><x-a>أوقات العمل المسموحة</x-a><x-e>Allowed working hours</x-e></td><td><x-a>نهاري، ليلي، بعد إغلاق المول</x-a><x-e>Day, night, after mall closing</x-e></td><td><x-a>يحدد الخطة وعدد الأيام</x-a><x-e>Sets the plan and duration</x-e></td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="blk">
+    <h3><x-a>قائمة جاهزية الموقع قبل يوم التركيب</x-a><x-e>Site readiness checklist before installation day</x-e> <span class="tag cmeter" id="cm-ready"></span></h3>
+    <div class="checks" data-list="ready">
+      <label><input type="checkbox"><span><x-a>أعمال الجبس والدهان والأرضيات انتهت في منطقة التركيب</x-a><x-e>Gypsum, painting and flooring are finished in the installation area</x-e></span></label>
+      <label><input type="checkbox"><span><x-a>الكهرباء موصولة ومُختبرة في كل نقطة، مع تأريض</x-a><x-e>Power is live and tested at every point, with earthing</x-e></span></label>
+      <label><input type="checkbox"><span><x-a>نقاط الشبكة جاهزة ومُختبرة</x-a><x-e>Network points are ready and tested</x-e></span></label>
+      <label><input type="checkbox"><span><x-a>الدعامات الخشبية أو الحديدية داخل الجبس منفّذة حسب المطلوب</x-a><x-e>Wood or steel backing inside gypsum walls is installed as required</x-e></span></label>
+      <label><input type="checkbox"><span><x-a>الهيكل المعدني لشاشة LED منفّذ ومستلم</x-a><x-e>The LED steel structure is built and accepted</x-e></span></label>
+      <label><input type="checkbox"><span><x-a>العميل اعتمد الارتفاع والموقع النهائي كتابيًا</x-a><x-e>The client approved the final height and position in writing</x-e></span></label>
+      <label><input type="checkbox"><span><x-a>تصريح الدخول والعمل صادر</x-a><x-e>The access and work permit is issued</x-e></span></label>
+      <label><input type="checkbox"><span><x-a>المواد وصلت وتطابق قائمة التعبئة، والصناديق سليمة</x-a><x-e>Materials arrived, match the packing list and boxes are undamaged</x-e></span></label>
+    </div>
+  </div>
+
+  <div class="note warn"><b><x-a>قاعدة عملية:</x-a><x-e>Practical rule:</x-e></b> <x-a>إذا كان الموقع غير جاهز، صوّر النواقص وأرسلها لمدير المشروع قبل الموعد. لا تركّب على موقع غير جاهز "لتسيير العمل"، لأن أي ضرر لاحق من أعمال المقاولين سيُحسب علينا.</x-a><x-e>If the site isn't ready, photograph the gaps and send them to the project manager before the date. Never install on an unready site "to keep things moving"; any later damage from other contractors' work will be counted against us.</x-e></div>
+
+  <div class="done-row"><button class="btn" data-done="ch3"><x-a>أنهيت الفصل ←</x-a><x-e>Mark chapter done →</x-e></button></div>
+</div></section>
+
+<!-- CH4 -->
+<section class="ch" id="ch4"><div class="wrap">
+  <div><div class="eyebrow"><x-a>الفصل الرابع</x-a><x-e>Chapter 4</x-e></div>
+  <h2><x-a>الجدران والتثبيت والأدوات</x-a><x-e>Walls, anchors and tools</x-e></h2>
+  <p class="lead"><x-a>الحامل نفسه نادرًا ما يفشل. ما يفشل غالبًا هو البرغي الخطأ في الجدار الخطأ. اختر طريقة التثبيت حسب الجدار قبل أي شيء.</x-a><x-e>The mount itself rarely fails. What fails is usually the wrong anchor in the wrong wall. Choose the fixing method by wall type before anything else.</x-e></p></div>
+
+  <div class="blk">
+    <h3><x-a>اختر نوع الجدار</x-a><x-e>Pick the wall type</x-e></h3>
+    <div class="picker" id="wallPick"></div>
+    <div class="tool" id="wallOut" aria-live="polite"></div>
+  </div>
+
+  <div class="blk">
+    <h3><x-a>حقيبة أدوات فريق التركيب</x-a><x-e>Installation crew toolkit</x-e></h3>
+    <div class="grid">
+      <div class="card"><b><x-a>القياس والاستواء</x-a><x-e>Measuring &amp; levelling</x-e></b><small><x-a>ليزر خطوط، ميزان ماء طويل، متر، شريط قياس ليزر، أقلام تحديد.</x-a><x-e>Line laser, long spirit level, tape measure, laser distance meter, markers.</x-e></small></div>
+      <div class="card"><b><x-a>الحفر والتثبيت</x-a><x-e>Drilling &amp; fixing</x-e></b><small><x-a>مثقاب دوّار (SDS)، مثقاب لاسلكي، لُقم حفر للخرسانة والخشب والحديد، طقم مفاتيح، مفتاح عزم.</x-a><x-e>SDS rotary hammer, cordless drill, concrete/wood/steel bits, socket set, torque wrench.</x-e></small></div>
+      <div class="card"><b><x-a>الكشف والقياس الكهربائي</x-a><x-e>Detection &amp; electrical</x-e></b><small><x-a>كاشف معادن وأسلاك، ملتيميتر، فاحص كابلات شبكة.</x-a><x-e>Metal and live-wire detector, multimeter, network cable tester.</x-e></small></div>
+      <div class="card"><b><x-a>الكابلات</x-a><x-e>Cabling</x-e></b><small><x-a>أداة كبس RJ45، أربطة كابلات، مجاري كابلات، ملصقات ترقيم، شريط لاصق.</x-a><x-e>RJ45 crimper, ties, trunking, numbering labels, tape.</x-e></small></div>
+      <div class="card"><b><x-a>حماية المنتج</x-a><x-e>Product protection</x-e></b><small><x-a>قفازات مضادة للكهرباء الساكنة (ESD)، بطانية ناعمة، أكواب شفط لوحدات LED، قماش تنظيف.</x-a><x-e>ESD gloves, soft blanket, LED module suction tools, cleaning cloth.</x-e></small></div>
+      <div class="card"><b><x-a>النظافة</x-a><x-e>Cleanliness</x-e></b><small><x-a>مكنسة كهربائية صغيرة لغبار الحفر، أكياس نفايات، غطاء أرضيات.</x-a><x-e>Small vacuum for drilling dust, rubbish bags, floor protection sheets.</x-e></small></div>
+    </div>
+  </div>
+
+  <div class="blk">
+    <h3><x-a>معيار VESA وسعة الحامل</x-a><x-e>VESA and mount capacity</x-e></h3>
+    <p><x-a>VESA هو المسافة بين فتحات البراغي خلف الشاشة بالمليمتر، مثل 400×400 أو 600×400. الحامل يجب أن يدعم نمط VESA الخاص بالشاشة <b>و</b>وزنها معًا. تحقق من الرقمين في ورقة المواصفات، لا من الصندوق.</x-a><x-e>VESA is the distance between the screw holes on the back of the screen in millimetres, such as 400×400 or 600×400. The mount must support both the screen's VESA pattern <b>and</b> its weight. Check both numbers in the datasheet, not on the box.</x-e></p>
+    <div class="note"><b><x-a>براغي VESA:</x-a><x-e>VESA screws:</x-e></b> <x-a>استخدم البراغي المرفقة بالشاشة أو المحددة في الدليل (غالبًا M6 أو M8). البرغي الطويل جدًا قد يخترق الشاشة من الداخل ويتلفها، والقصير جدًا لا يمسك.</x-a><x-e>Use the screws supplied with the screen or specified in the manual (often M6 or M8). Too long and it can damage the inside of the screen; too short and it won't hold.</x-e></div>
+  </div>
+
+  <div class="done-row"><button class="btn" data-done="ch4"><x-a>أنهيت الفصل ←</x-a><x-e>Mark chapter done →</x-e></button></div>
+</div></section>
+
+<!-- CH5 -->
+<section class="ch" id="ch5"><div class="wrap">
+  <div><div class="eyebrow"><x-a>الفصل الخامس — الأهم</x-a><x-e>Chapter 5 — the core chapter</x-e></div>
+  <h2><x-a>أصول تركيب كل شاشة</x-a><x-e>How each display is installed</x-e></h2>
+  <p class="lead"><x-a>كل نوع شاشة له طريقة تركيب وشروط وأخطاء خاصة فيه. اختر النوع لترى: المتطلبات قبل البدء، خطوات التركيب، الممنوعات، وقائمة الفحص.</x-a><x-e>Each display type has its own method, conditions and typical mistakes. Pick a type to see the prerequisites, installation steps, don'ts and checklist.</x-e></p></div>
+
+  <div class="picker" id="typePick" role="tablist"></div>
+  <div class="typecard" id="typeCard"></div>
+
+  <div class="note warn"><b><x-a>المرجع النهائي:</x-a><x-e>Final reference:</x-e></b> <x-a>هذه أصول عامة. دليل التركيب الرسمي للموديل هو المرجع النهائي، خاصة في مسافات التهوية واتجاه التدوير والأوزان وعزم الشد. إذا تعارض شيء هنا مع دليل المصنّع، اتبع الدليل.</x-a><x-e>These are general rules. The model's official installation manual is the final reference, especially for ventilation clearances, rotation direction, weights and torque. If anything here conflicts with the manufacturer's manual, follow the manual.</x-e></div>
+
+  <div class="done-row"><button class="btn" data-done="ch5"><x-a>أنهيت الفصل ←</x-a><x-e>Mark chapter done →</x-e></button></div>
+</div></section>
+
+<!-- CH6 -->
+<section class="ch" id="ch6"><div class="wrap">
+  <div><div class="eyebrow"><x-a>الفصل السادس</x-a><x-e>Chapter 6</x-e></div>
+  <h2><x-a>الكهرباء والكابلات والتأريض</x-a><x-e>Power, cabling and earthing</x-e></h2>
+  <p class="lead"><x-a>أكثر أعطال ما بعد التركيب سببها كهرباء غير مستقرة أو كابل خارج حدوده. والضمان لا يغطي أضرار التذبذب أو غياب التأريض.</x-a><x-e>Most post-installation faults come from unstable power or a cable pushed beyond its limit. Warranty does not cover damage from fluctuation or missing earthing.</x-e></p></div>
+
+  <div class="blk">
+    <h3><x-a>قواعد الكهرباء</x-a><x-e>Power rules</x-e></h3>
+    <ul class="list">
+      <li><x-a><b>دائرة مخصصة</b> لشاشات LED والجدار المرئي، لا تشاركها مع المكيفات أو الأحمال الثقيلة.</x-a><x-e><b>A dedicated circuit</b> for LED and video walls; don't share it with AC units or heavy loads.</x-e></li>
+      <li><x-a><b>التأريض إلزامي</b> لكل هيكل معدني وكل كابينة LED. افحصه بالملتيميتر قبل التشغيل.</x-a><x-e><b>Earthing is mandatory</b> for every metal structure and LED cabinet. Test it with a multimeter before power-up.</x-e></li>
+      <li><x-a><b>الحماية:</b> قواطع مناسبة، وحماية من التيار المتسرب (RCD)، ومانع صواعق وارتفاع الجهد (SPD) للتركيبات الخارجية. ننصح العميل بـ UPS أو منظم جهد.</x-a><x-e><b>Protection:</b> correctly rated breakers, residual current protection (RCD), and surge protection (SPD) for outdoor work. Recommend a UPS or voltage regulator to the client.</x-e></li>
+      <li><x-a><b>لا تشغّل كل كبائن LED دفعة واحدة</b> على شاشة كبيرة؛ شغّل الأقسام بالتتابع لتجنب تيار البدء العالي الذي يفصل القاطع.</x-a><x-e><b>Don't switch on all LED cabinets at once</b> on a large wall; power sections in sequence to avoid the inrush current that trips the breaker.</x-e></li>
+      <li><x-a><b>لا توصيلات مؤقتة:</b> لا مقابس متعددة موصولة ببعضها ولا أسلاك مكشوفة تبقى بعد التسليم.</x-a><x-e><b>No temporary connections:</b> no daisy-chained power strips or exposed wires left after handover.</x-e></li>
+    </ul>
+  </div>
+
+  <div class="blk">
+    <h3><x-a>حدود مسافات الكابلات</x-a><x-e>Cable distance limits</x-e> <span class="tag"><x-a>قيم استرشادية</x-a><x-e>guide values</x-e></span></h3>
+    <div class="tbl"><table>
+      <thead><tr><th><x-a>الكابل</x-a><x-e>Cable</x-e></th><th><x-a>المسافة الآمنة تقريبًا</x-a><x-e>Typical safe distance</x-e></th><th><x-a>إذا احتجت أبعد</x-a><x-e>If you need longer</x-e></th></tr></thead>
+      <tbody>
+        <tr><td>HDMI (<x-a>عادي</x-a><x-e>passive</x-e>)</td><td class="num">≈ 5–10 m</td><td><x-a>أقل مع دقة 4K. استخدم HDMI فايبر (AOC) أو HDBaseT</x-a><x-e>Less at 4K. Use fibre HDMI (AOC) or HDBaseT</x-e></td></tr>
+        <tr><td>HDBaseT</td><td class="num">≈ 70–100 m</td><td><x-a>عبر كابل Cat6 واحد مع مرسل ومستقبل</x-a><x-e>Over one Cat6 cable with a transmitter and receiver</x-e></td></tr>
+        <tr><td>Cat6 / Ethernet</td><td class="num">100 m</td><td><x-a>مبدّل شبكة (Switch) وسيط أو فايبر</x-a><x-e>An intermediate switch or fibre</x-e></td></tr>
+        <tr><td><x-a>بيانات LED (بطاقة الإرسال → الاستقبال)</x-a><x-e>LED data (sending → receiving card)</x-e></td><td class="num">≈ 100 m</td><td><x-a>محوّل فايبر من المصنّع</x-a><x-e>Manufacturer's fibre converter</x-e></td></tr>
+        <tr><td>Fiber</td><td class="num">&gt; 300 m</td><td><x-a>حسب نوع الفايبر والمحوّلات</x-a><x-e>Depends on fibre type and converters</x-e></td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="blk">
+    <h3><x-a>تنظيم الكابلات والترقيم</x-a><x-e>Cable management and labelling</x-e></h3>
+    <div class="grid">
+      <div class="card"><b><x-a>افصل الكهرباء عن البيانات</x-a><x-e>Separate power and data</x-e></b><small><x-a>في مجاري أو مسارات منفصلة لتجنب التشويش، وتقاطعهما بزاوية قائمة.</x-a><x-e>In separate trunking or routes to avoid interference; cross them at right angles.</x-e></small></div>
+      <div class="card"><b><x-a>رقّم الطرفين</x-a><x-e>Label both ends</x-e></b><small><x-a>كل كابل يحمل الرقم نفسه من الطرفين ويطابق المخطط.</x-a><x-e>Every cable carries the same number at both ends, matching the drawing.</x-e></small></div>
+      <div class="card"><b><x-a>اترك هامش طول</x-a><x-e>Leave a service loop</x-e></b><small><x-a>طول إضافي خلف الشاشة يسمح بسحبها للصيانة دون فك الكابلات.</x-a><x-e>Extra length behind the screen lets it be pulled out for service without unplugging.</x-e></small></div>
+      <div class="card"><b><x-a>لا ثني حاد</x-a><x-e>No sharp bends</x-e></b><small><x-a>الثني الحاد يتلف كابلات HDMI والفايبر ويسبب أعطالًا متقطعة يصعب تتبعها.</x-a><x-e>Sharp bends damage HDMI and fibre cables and cause intermittent faults that are hard to trace.</x-e></small></div>
+    </div>
+  </div>
+
+  <div class="note"><b><x-a>للتقدير:</x-a><x-e>For estimates:</x-e></b> <x-a>استخدم حاسبة استهلاك LED في صفحة الحاسبات لمعرفة عدد الدوائر التقريبي، ثم يعتمد المهندس الكهربائي التصميم النهائي.</x-a><x-e>use the LED power calculator in the calculators page for an approximate number of circuits; the electrical engineer approves the final design.</x-e></div>
+
+  <div class="done-row"><button class="btn" data-done="ch6"><x-a>أنهيت الفصل ←</x-a><x-e>Mark chapter done →</x-e></button></div>
+</div></section>
+
+<!-- CH7 -->
+<section class="ch" id="ch7"><div class="wrap">
+  <div><div class="eyebrow"><x-a>الفصل السابع</x-a><x-e>Chapter 7</x-e></div>
+  <h2><x-a>التشغيل والفحص والتسليم</x-a><x-e>Commissioning, testing and handover</x-e></h2>
+  <p class="lead"><x-a>الشاشة التي تعمل ليست بالضرورة شاشة جاهزة للتسليم. الفحص المنظم يمنع زيارة العودة ويثبت أن التسليم تم بحالة سليمة.</x-a><x-e>A screen that turns on is not necessarily ready for handover. Structured testing prevents return visits and proves the handover was in good condition.</x-e></p></div>
+
+  <div class="blk">
+    <h3><x-a>خطوات التشغيل</x-a><x-e>Commissioning steps</x-e></h3>
+    <ol class="steps">
+      <li><b><x-a>فحص بصري قبل التشغيل</x-a><x-e>Visual check before power</x-e></b><br><x-a>الاستواء، تثبيت براغي الأمان، الكابلات، عدم وجود خدوش.</x-a><x-e>Level, safety screws, cables, no scratches.</x-e></li>
+      <li><b><x-a>تحديث النظام (Firmware)</x-a><x-e>Firmware update</x-e></b><br><x-a>لكل الشاشات إلى الإصدار نفسه، خاصة في الجدار المرئي.</x-a><x-e>All screens to the same version, especially in a video wall.</x-e></li>
+      <li><b><x-a>الإعدادات</x-a><x-e>Settings</x-e></b><br><x-a>الاتجاه، الوقت والتاريخ، الشبكة، التشغيل والإطفاء التلقائي، قفل الأزرار.</x-a><x-e>Orientation, time and date, network, auto power on/off, button lock.</x-e></li>
+      <li><b><x-a>الربط بنظام المحتوى</x-a><x-e>Connect to the CMS</x-e></b><br><x-a>MagicINFO أو برنامج المورد، وتسجيل الرخصة على الشاشة.</x-a><x-e>MagicINFO or the vendor's software, and register the licence on the screen.</x-e></li>
+      <li><b><x-a>صور الاختبار</x-a><x-e>Test patterns</x-e></b><br><x-a>أبيض، أسود، أحمر، أخضر، أزرق، وتدرج رمادي — لكشف البكسلات الميتة واختلاف الألوان.</x-a><x-e>White, black, red, green, blue and grey ramp — to reveal dead pixels and colour differences.</x-e></li>
+      <li><b><x-a>المعايرة</x-a><x-e>Calibration</x-e></b><br><x-a>توحيد السطوع والألوان بين شاشات الجدار المرئي أو وحدات LED.</x-a><x-e>Match brightness and colour across video wall panels or LED modules.</x-e></li>
+      <li><b><x-a>اختبار تشغيل مستمر</x-a><x-e>Run-in test</x-e></b><br><x-a>تشغيل لساعات قبل التسليم إن أمكن، لكشف أي عطل مبكر.</x-a><x-e>Run for hours before handover where possible, to catch early failures.</x-e></li>
+    </ol>
+  </div>
+
+  <div class="blk">
+    <h3><x-a>قائمة فحص التسليم</x-a><x-e>Handover checklist</x-e> <span class="tag cmeter" id="cm-hand"></span></h3>
+    <div class="checks" data-list="hand">
+      <label><input type="checkbox"><span><x-a>كل الشاشات تعمل وبلا بكسلات ميتة أو خطوط</x-a><x-e>All screens work with no dead pixels or lines</x-e></span></label>
+      <label><input type="checkbox"><span><x-a>المحتوى يُعرض من نظام الإدارة وتعمل جدولته بشكل صحيح</x-a><x-e>Content plays from the CMS and schedules correctly</x-e></span></label>
+      <label><input type="checkbox"><span><x-a>الأرقام التسلسلية مسجلة ومطابقة لموقع كل شاشة</x-a><x-e>Serial numbers recorded and matched to each screen's position</x-e></span></label>
+      <label><input type="checkbox"><span><x-a>صور قبل وبعد، وصورة للوحة الكهرباء والكابلات خلف الشاشة</x-a><x-e>Before/after photos, plus the power panel and cables behind the screen</x-e></span></label>
+      <label><input type="checkbox"><span><x-a>الموقع نظيف: لا غبار، لا صناديق، لا براغي على الأرض</x-a><x-e>Site is clean: no dust, boxes or screws on the floor</x-e></span></label>
+      <label><input type="checkbox"><span><x-a>أجهزة التحكم عن بُعد والملحقات وكلمات المرور مسلّمة للعميل</x-a><x-e>Remotes, accessories and passwords handed to the client</x-e></span></label>
+      <label><input type="checkbox"><span><x-a>تدريب سريع للمسؤول عن التشغيل عند العميل</x-a><x-e>Short training for the client's operator</x-e></span></label>
+      <label><input type="checkbox"><span><x-a>محضر الاستلام موقّع، مع تاريخ التسليم (بداية الضمان)</x-a><x-e>Acceptance report signed, with the handover date (warranty start)</x-e></span></label>
+    </div>
+  </div>
+
+  <div class="note"><b><x-a>قائمة الملاحظات (Snag List):</x-a><x-e>Snag list:</x-e></b> <x-a>إذا بقيت ملاحظات بسيطة لا تمنع التشغيل، اكتبها في المحضر مع موعد إغلاقها، واطلب من العميل التوقيع على ما تبقّى. لا تترك ملاحظة شفهية.</x-a><x-e>if minor items remain that don't block operation, write them in the report with a closing date, and have the client sign for the rest. Never leave a verbal note.</x-e></div>
+
+  <div class="done-row"><button class="btn" data-done="ch7"><x-a>أنهيت الفصل ←</x-a><x-e>Mark chapter done →</x-e></button></div>
+</div></section>
+
+<!-- CH8 -->
+<section class="ch" id="ch8"><div class="wrap">
+  <div><div class="eyebrow"><x-a>الفصل الثامن</x-a><x-e>Chapter 8</x-e></div>
+  <h2><x-a>السلوك في الموقع والضمان</x-a><x-e>Site conduct and warranty</x-e></h2>
+  <p class="lead"><x-a>الفريق في الموقع هو وجه الشركة. العميل يتذكر كيف تركتم المكان بقدر ما يتذكر جودة الشاشة.</x-a><x-e>The crew on site is the face of the company. The client remembers how you left the place as much as the quality of the screen.</x-e></p></div>
+
+  <div class="grid">
+    <div class="card"><b><x-a>الالتزام بالموعد</x-a><x-e>Be on time</x-e></b><small><x-a>أي تأخير يُبلَّغ به العميل ومدير المشروع قبل الموعد، لا بعده.</x-a><x-e>Any delay is reported to the client and project manager before the time, not after.</x-e></small></div>
+    <div class="card"><b><x-a>حماية ممتلكات العميل</x-a><x-e>Protect the client's property</x-e></b><small><x-a>غطِّ الأرضيات والأثاث قبل الحفر، ونظف الغبار فورًا.</x-a><x-e>Cover floors and furniture before drilling, and clear dust immediately.</x-e></small></div>
+    <div class="card"><b><x-a>لا وعود خارج النطاق</x-a><x-e>No out-of-scope promises</x-e></b><small><x-a>أي طلب إضافي من العميل يُحوَّل لمدير المشروع ليُسعَّر، لا يُنفَّذ مجانًا ولا يُرفض بفظاظة.</x-a><x-e>Any extra request goes to the project manager to be priced — not done for free, not refused rudely.</x-e></small></div>
+    <div class="card"><b><x-a>التقرير اليومي</x-a><x-e>Daily report</x-e></b><small><x-a>ما تم إنجازه، الصور، والعوائق، يُرسل نهاية كل يوم عمل.</x-a><x-e>Work done, photos and blockers, sent at the end of each working day.</x-e></small></div>
+    <div class="card"><b><x-a>المواد والتغليف</x-a><x-e>Materials and packaging</x-e></b><small><x-a>احتفظ بصناديق الشاشات حتى التسليم إن طلب العميل، فهي تفيد في أي إرجاع ضمان.</x-a><x-e>Keep screen boxes until handover if the client asks; they help with any warranty return.</x-e></small></div>
+    <div class="card"><b><x-a>السرية</x-a><x-e>Confidentiality</x-e></b><small><x-a>لا تنشر صور مواقع العملاء على وسائل التواصل بدون إذن، خاصة الجهات الحكومية والبنوك.</x-a><x-e>Never post client site photos on social media without permission, especially government and banks.</x-e></small></div>
+  </div>
+
+  <div class="blk">
+    <h3><x-a>أخطاء تركيب تُسقط الضمان</x-a><x-e>Installation mistakes that void the warranty</x-e></h3>
+    <ul class="no">
+      <li><x-a>تركيب شاشة داخلية في مكان خارجي أو تحت شمس مباشرة.</x-a><x-e>Installing an indoor screen outdoors or in direct sun.</x-e></li>
+      <li><x-a>سد فتحات التهوية أو تركيب الشاشة داخل تجويف مغلق بلا تهوية.</x-a><x-e>Blocking vents or installing the screen in a closed recess without ventilation.</x-e></li>
+      <li><x-a>تدوير الشاشة للوضع العمودي باتجاه مخالف لدليل المصنّع.</x-a><x-e>Rotating the screen to portrait in the opposite direction to the manual.</x-e></li>
+      <li><x-a>غياب التأريض أو التوصيل بمصدر كهرباء غير مستقر.</x-a><x-e>Missing earthing or connecting to unstable power.</x-e></li>
+      <li><x-a>كسر أو خدش أثناء النقل والتركيب، أو إزالة ملصق الرقم التسلسلي.</x-a><x-e>Breakage or scratches during transport and installation, or removing the serial label.</x-e></li>
+      <li><x-a>استخدام حامل غير مناسب للوزن أو تعديل الشاشة نفسها.</x-a><x-e>Using a mount not rated for the weight, or modifying the screen itself.</x-e></li>
+    </ul>
+  </div>
+
+  <div class="note stop"><b><x-a>تذكّر:</x-a><x-e>Remember:</x-e></b> <x-a>عندما يركّب فريقنا، تصبح أخطاء التركيب مسؤوليتنا لا مسؤولية المصنّع. الضمان يحمي العميل من عيوب التصنيع فقط.</x-a><x-e>when our crew installs, installation mistakes become our responsibility, not the manufacturer's. Warranty only protects the client from manufacturing defects.</x-e></div>
+
+  <div class="done-row"><button class="btn" data-done="ch8"><x-a>أنهيت الفصل ←</x-a><x-e>Mark chapter done →</x-e></button></div>
+</div></section>
+
+<!-- TOOLS -->
+<section class="ch" id="tools"><div class="wrap">
+  <div><div class="eyebrow"><x-a>أدوات عملية</x-a><x-e>Practical tools</x-e></div>
+  <h2><x-a>حاسبات التركيب</x-a><x-e>Installation calculators</x-e></h2>
+  <p class="lead"><x-a>تقديرات سريعة للمعاينة والتخطيط. النتائج استرشادية، والمرجع النهائي دليل المصنّع والمهندس المختص.</x-a><x-e>Quick estimates for surveys and planning. Results are a guide; the manufacturer's manual and the responsible engineer have the final word.</x-e></p></div>
+
+  <div class="tool">
+    <h3><x-a>ارتفاع تركيب الشاشة</x-a><x-e>Mounting height</x-e></h3>
+    <div class="form">
+      <label><x-a>مقاس الشاشة (بوصة)</x-a><x-e>Screen size (inch)</x-e><input id="h-size" type="number" value="65" min="10" max="150"></label>
+      <label><x-a>الاتجاه</x-a><x-e>Orientation</x-e><select id="h-ori"><option value="l">Landscape</option><option value="p">Portrait</option></select></label>
+      <label><x-a>الاستخدام</x-a><x-e>Use</x-e><select id="h-use">
+        <option value="seat">جلوس — اجتماعات / Seated — meeting</option>
+        <option value="stand" selected>وقوف — استقبال / Standing — reception</option>
+        <option value="crowd">فوق الجمهور — مول / Above crowd — mall</option>
+        <option value="touch">لمس / كتابة — Touch / writing</option>
+      </select></label>
+      <label><x-a>مسافة المشاهد (م)</x-a><x-e>Viewer distance (m)</x-e><input id="h-dist" type="number" value="3" step="0.5" min="0.5"></label>
+    </div>
+    <div class="out" id="h-out"></div>
+    <div class="verdict" id="h-v"></div>
+  </div>
+
+  <div class="tool">
+    <h3><x-a>فحص حمل الحامل</x-a><x-e>Mount load check</x-e></h3>
+    <div class="form">
+      <label><x-a>وزن الشاشة (كغ)</x-a><x-e>Screen weight (kg)</x-e><input id="l-w" type="number" value="28" min="0"></label>
+      <label><x-a>وزن الإضافات (كغ) — مشغّل، كاميرا…</x-a><x-e>Add-ons (kg) — player, camera…</x-e><input id="l-add" type="number" value="2" min="0"></label>
+      <label><x-a>الحمل الأقصى للحامل (كغ)</x-a><x-e>Mount rated load (kg)</x-e><input id="l-r" type="number" value="50" min="0"></label>
+      <label><x-a>هامش الأمان المطلوب</x-a><x-e>Required safety margin</x-e><select id="l-sf"><option value="1.25">1.25×</option><option value="1.5" selected>1.5×</option><option value="2">2×</option></select></label>
+      <label><x-a>نوع الحامل</x-a><x-e>Mount type</x-e><select id="l-type"><option value="fixed">ثابت / Fixed</option><option value="tilt">إمالة / Tilt</option><option value="arm">ذراع متحرك / Full-motion arm</option><option value="ceil">سقف / Ceiling</option></select></label>
+    </div>
+    <div class="out" id="l-out"></div>
+    <div class="verdict" id="l-v"></div>
+  </div>
+
+  <div class="tool">
+    <h3><x-a>استهلاك كهرباء شاشة LED</x-a><x-e>LED power estimate</x-e></h3>
+    <div class="form">
+      <label><x-a>العرض (م)</x-a><x-e>Width (m)</x-e><input id="p-w" type="number" value="4" step="0.1" min="0"></label>
+      <label><x-a>الارتفاع (م)</x-a><x-e>Height (m)</x-e><input id="p-h" type="number" value="2.25" step="0.1" min="0"></label>
+      <label><x-a>البيئة</x-a><x-e>Environment</x-e><select id="p-env"><option value="in">داخلي / Indoor</option><option value="out">خارجي / Outdoor</option></select></label>
+      <label><x-a>أقصى استهلاك (واط/م²) من الداتاشيت</x-a><x-e>Max power (W/m²) from datasheet</x-e><input id="p-max" type="number" value="600" min="50"></label>
+      <label><x-a>نظام الكهرباء</x-a><x-e>Supply</x-e><select id="p-ph"><option value="1">230V — أحادي / single-phase</option><option value="3">400V — ثلاثي / three-phase</option></select></label>
+    </div>
+    <div class="out" id="p-out"></div>
+    <div class="note warn"><b><x-a>تنبيه:</x-a><x-e>Caution:</x-e></b> <x-a>الحساب يفترض متوسط استهلاك ≈ ثلث الأقصى، ودوائر 16A محمّلة حتى 80%. الأرقام الفعلية من ورقة مواصفات الموديل، والتصميم الكهربائي يعتمده مهندس كهرباء.</x-a><x-e>assumes average draw ≈ one third of maximum, and 16A circuits loaded to 80%. Real figures come from the model's datasheet; the electrical design is approved by an electrical engineer.</x-e></div>
+  </div>
+
+  <div class="done-row"><button class="btn" data-done="tools"><x-a>أنهيت تجربة الحاسبات ←</x-a><x-e>Done with the tools →</x-e></button></div>
+</div></section>
+
+<!-- CASES -->
+<section class="ch" id="cases"><div class="wrap">
+  <div><div class="eyebrow"><x-a>قرارك أنت</x-a><x-e>Your call</x-e></div>
+  <h2><x-a>سيناريوهات من الموقع</x-a><x-e>Field scenarios</x-e></h2>
+  <p class="lead"><x-a>مواقف حقيقية تتكرر في المشاريع. اختر التصرف وشاهد النتيجة.</x-a><x-e>Real situations that come up on projects. Choose the action and see the outcome.</x-e></p></div>
+  <div id="caseBox" class="blk"></div>
+  <div class="done-row"><button class="btn" data-done="cases"><x-a>أنهيت السيناريوهات ←</x-a><x-e>Done with scenarios →</x-e></button></div>
+</div></section>
+
+<!-- EXAM -->
+<section class="ch" id="exam"><div class="wrap">
+  <div><div class="eyebrow"><x-a>التقييم</x-a><x-e>Assessment</x-e></div>
+  <h2><x-a>الاختبار النهائي والشهادة</x-a><x-e>Final exam and certificate</x-e></h2>
+  <p class="lead"><x-a>أسئلة من كل الفصول. النجاح يتطلب 80% فأعلى، وعندها تظهر شهادة الإتمام.</x-a><x-e>Questions from every chapter. You need 80% or above to unlock the completion certificate.</x-e></p></div>
+  <div class="form" style="grid-template-columns:minmax(0,360px)"><label><x-a>اسم المتدرب (يظهر على الشهادة)</x-a><x-e>Trainee name (shown on the certificate)</x-e><input id="tname" type="text" autocomplete="name"></label></div>
+  <div id="quiz" class="blk"></div>
+  <div class="done-row"><button class="btn ghost" id="qReset"><x-a>إعادة الاختبار</x-a><x-e>Retake</x-e></button><button class="btn" id="qSubmit"><x-a>اعرض النتيجة</x-a><x-e>Show result</x-e></button></div>
+  <div id="qResult" aria-live="polite"></div>
+</div></section>
+
+<!-- TERMS -->
+<section class="ch" id="terms"><div class="wrap">
+  <div><div class="eyebrow"><x-a>مرجع سريع</x-a><x-e>Quick reference</x-e></div>
+  <h2><x-a>قاموس المصطلحات</x-a><x-e>Glossary</x-e></h2>
+  <p class="lead"><x-a>المصطلحات التي ستسمعها في الموقع وفي أدلة التركيب.</x-a><x-e>The terms you'll hear on site and read in installation manuals.</x-e></p></div>
+  <div class="gloss"><input id="gq" type="search" placeholder="ابحث / Search"></div>
+  <dl class="terms" id="glist"></dl>
+</div></section>
+
+</main>
+</div>
+<footer class="foot">Fast Vision for Telecommunication &amp; IT · www.fast-visionav.com · +966 56 262 7778</footer>
+
+<script>
+const T=(a,e)=>`<x-a>${a}</x-a><x-e>${e}</x-e>`;
+const isEn=()=>document.body.classList.contains('en');
+const store={get(k,d){try{const v=localStorage.getItem('fvInst:'+k);return v==null?d:JSON.parse(v)}catch(_){return d}},set(k,v){try{localStorage.setItem('fvInst:'+k,JSON.stringify(v))}catch(_){}}};
+
+/* ---------- language ---------- */
+function setLang(en){document.body.classList.toggle('en',en);document.documentElement.dir=en?'ltr':'rtl';document.documentElement.lang=en?'en':'ar';
+  document.getElementById('langBtn').textContent=en?'عربي':'EN';store.set('lang',en);renderCalcs();}
+document.getElementById('langBtn').onclick=()=>setLang(!isEn());
+
+/* ---------- routing ---------- */
+const order=['ch1','ch2','ch3','ch4','ch5','ch6','ch7','ch8','tools','cases','exam','terms'];
+function show(id){if(!order.includes(id))id='ch1';
+  document.querySelectorAll('section.ch').forEach(s=>s.classList.toggle('show',s.id===id));
+  document.querySelectorAll('.rail a').forEach(a=>a.classList.toggle('on',a.dataset.ch===id));
+  document.body.classList.remove('navopen');window.scrollTo(0,0);}
+window.addEventListener('hashchange',()=>show(location.hash.slice(1)));
+document.getElementById('menuBtn').onclick=()=>document.body.classList.toggle('navopen');
+
+/* ---------- progress ---------- */
+const tracked=['ch1','ch2','ch3','ch4','ch5','ch6','ch7','ch8','tools','cases','exam'];
+let done=store.get('done',[]);
+function paintProgress(){const n=tracked.filter(x=>done.includes(x)).length,p=Math.round(n/tracked.length*100);
+  document.getElementById('pfill').style.width=p+'%';document.getElementById('ptxt').textContent=p+'%';
+  document.querySelectorAll('.rail a').forEach(a=>a.classList.toggle('done',done.includes(a.dataset.ch)));}
+document.querySelectorAll('[data-done]').forEach(b=>b.onclick=()=>{const id=b.dataset.done;if(!done.includes(id))done.push(id);store.set('done',done);paintProgress();
+  const i=order.indexOf(id);location.hash=order[i+1]||'exam';});
+document.getElementById('resetBtn').onclick=()=>{done=[];store.set('done',done);store.set('checks',{});store.set('quiz',{});
+  document.querySelectorAll('.checks input').forEach(i=>i.checked=false);paintChecks();quizAns={};renderQuiz();document.getElementById('qResult').innerHTML='';paintProgress();};
+
+/* ---------- flip ---------- */
+document.querySelectorAll('.flip').forEach(f=>f.onclick=()=>f.classList.toggle('on'));
+
+/* ---------- checklists ---------- */
+let checks=store.get('checks',{});
+document.querySelectorAll('.checks').forEach(list=>{const k=list.dataset.list;list.querySelectorAll('input').forEach((inp,i)=>{
+  inp.id=`chk-${k}-${i}`;inp.checked=!!(checks[k]||[])[i];inp.onchange=()=>{checks[k]=[...list.querySelectorAll('input')].map(x=>x.checked);store.set('checks',checks);paintChecks();};});});
+function paintChecks(){document.querySelectorAll('.checks').forEach(list=>{const all=list.querySelectorAll('input'),c=[...all].filter(x=>x.checked).length;
+  const el=document.getElementById(list.dataset.list==='ready'?'cm-ready':'cm-hand');if(el)el.textContent=`${c} / ${all.length}`;});}
+
+/* ---------- walls ---------- */
+const walls=[
+ {id:'conc',n:T('خرسانة مسلحة','Reinforced concrete'),ok:'ok',
+  fix:T('براغي تمدد معدنية (Wedge / Sleeve Anchor) أو براغي كيميائية للأحمال الثقيلة.','Metal expansion anchors (wedge / sleeve) or chemical anchors for heavy loads.'),
+  tips:[T('استخدم مثقابًا دوّارًا (SDS) ولُقمة خرسانة بالقطر المحدد للبرغي بالضبط.','Use an SDS drill and a concrete bit of exactly the anchor\'s specified diameter.'),T('إذا اصطدمت بحديد التسليح، أوقف الحفر وانقل الفتحة قليلًا. لا تقص الحديد.','If you hit rebar, stop and shift the hole slightly. Never cut the rebar.'),T('نظّف غبار الفتحة قبل إدخال البرغي الكيميائي، وانتظر زمن التصلب كاملًا.','Blow the dust out before a chemical anchor, and wait the full curing time.')]},
+ {id:'block',n:T('بلوك / طوب مفرغ','Hollow block / brick'),ok:'mid',
+  fix:T('براغي كيميائية مع جلبة شبكية (Mesh Sleeve)، أو براغي نافذة (Through-bolt) مع لوح من الخلف.','Chemical anchors with a mesh sleeve, or through-bolts with a back plate.'),
+  tips:[T('الحفر مع إيقاف خاصية الطَّرق (Hammer off) حتى لا تنكسر جدران البلوك الداخلية.','Drill with hammer mode off so the block\'s inner webs don\'t crack.'),T('براغي التمدد العادية لا تمسك جيدًا في البلوك المفرغ.','Ordinary expansion anchors don\'t hold well in hollow block.'),T('للشاشات الثقيلة وزّع الحمل على عدد أكبر من النقاط أو استخدم لوحًا حديديًا.','For heavy screens spread the load over more points or use a steel plate.')]},
+ {id:'gyp',n:T('جبس بورد','Gypsum board / drywall'),ok:'bad',
+  fix:T('الجبس وحده لا يحمل شاشة. ثبّت على القوائم المعدنية (Studs) أو على دعامة خشبية أو حديدية مركّبة داخل الجدار مسبقًا.','Gypsum alone cannot carry a screen. Fix into the metal studs or into wood/steel backing installed inside the wall beforehand.'),
+  tips:[T('حدد القوائم بكاشف المعادن قبل تحديد المواقع.','Locate studs with a detector before marking.'),T('براغي الفراشة (Toggle) فقط للأحمال الخفيفة جدًا، وليست حلًا للشاشات الكبيرة.','Toggle bolts are only for very light loads, not a solution for large screens.'),T('إن لم توجد دعامة: أوقف وأبلغ مدير المشروع لتنفيذ دعامة أو حامل أرضي بديل.','If there is no backing: stop and inform the project manager to add backing or use a floor stand.')]},
+ {id:'glass',n:T('زجاج / كلادينج','Glass / cladding'),ok:'bad',
+  fix:T('لا يُثبَّت عليه مباشرة. يحتاج هيكلًا مستقلًا من الأرض للسقف أو تثبيتًا في الجدار الإنشائي خلف الكلادينج.','Never fix directly. It needs a floor-to-ceiling frame or fixing into the structural wall behind the cladding.'),
+  tips:[T('احصل على موافقة الاستشاري أو المالك قبل أي اختراق للكلادينج.','Get the consultant\'s or owner\'s approval before penetrating any cladding.'),T('لشاشات النوافذ استخدم حامل سقف-أرض (Pole) أو حامل معلق من السقف.','For window displays use a floor-to-ceiling pole or a ceiling suspension.')]},
+ {id:'steel',n:T('هيكل معدني','Steel structure'),ok:'ok',
+  fix:T('براغي ومسامير بصواميل وحلقات، أو مشابك (Beam Clamps) بدون حفر في الكمرات الرئيسية.','Bolts with nuts and washers, or beam clamps without drilling into main beams.'),
+  tips:[T('لا تلحم أو تحفر في الكمرات الإنشائية بدون موافقة مهندس.','Never weld or drill into structural beams without an engineer\'s approval.'),T('شد البراغي بمفتاح العزم بالقيمة المحددة.','Tighten bolts with a torque wrench to the specified value.'),T('اربط الهيكل بالتأريض.','Bond the structure to earth.')]},
+];
+let wallSel='conc';
+function renderWalls(){const pick=document.getElementById('wallPick');pick.innerHTML=walls.map(w=>`<button class="chip" aria-pressed="${w.id===wallSel}" data-w="${w.id}">${w.n}</button>`).join('');
+  pick.querySelectorAll('button').forEach(b=>b.onclick=()=>{wallSel=b.dataset.w;renderWalls();});
+  const w=walls.find(x=>x.id===wallSel);const v={ok:T('مناسب للتثبيت المباشر','Suitable for direct fixing'),mid:T('مناسب بشروط','Suitable with conditions'),bad:T('غير مناسب بدون حل إنشائي','Not suitable without a structural solution')}[w.ok];
+  document.getElementById('wallOut').innerHTML=`<div class="verdict ${w.ok}">${v}</div><p><b>${T('طريقة التثبيت:','Fixing method:')}</b> ${w.fix}</p><ul class="list">${w.tips.map(t=>`<li>${t}</li>`).join('')}</ul>`;}
+
+/* ---------- screen types ---------- */
+const types=[
+ {id:'lcd',n:T('شاشة عرض رقمي','Digital Signage'),spec:['13″–115″','VESA','Wall / Stand','Landscape / Portrait'],
+  intro:T('أكثر تركيب ستقوم به. يبدو بسيطًا، لكن أخطاء الارتفاع والاستواء والتهوية فيه هي الأكثر شيوعًا.','The installation you will do most. It looks simple, but height, level and ventilation mistakes are most common here.'),
+  pre:[T('الوزن ونمط VESA من ورقة المواصفات، والحامل يطابقهما.','Weight and VESA from the datasheet, and the mount matches both.'),T('نوع الجدار معروف وطريقة التثبيت محددة (الفصل الرابع).','Wall type known and fixing method chosen (chapter 4).'),T('نقطة كهرباء وشبكة خلف الشاشة مباشرة لتُخفى الكابلات.','Power and data point directly behind the screen so cables are hidden.'),T('الارتفاع معتمد من العميل كتابيًا.','Height approved by the client in writing.'),T('الموديل يدعم الوضع العمودي إذا كان التركيب عموديًا، واتجاه التدوير معروف من الدليل.','The model supports portrait if mounted vertically, and the rotation direction is known from the manual.')],
+  steps:[T('علّم خط المنتصف والارتفاع بالليزر.','Mark the centre line and height with a laser.'),T('ضع الحامل على الجدار، علّم الفتحات وتأكد من الاستواء.','Hold the mount on the wall, mark the holes and check level.'),T('احفر وثبّت البراغي المناسبة للجدار، ثم ثبّت الحامل وأعد فحص الاستواء.','Drill and fit the right anchors, fix the mount and re-check level.'),T('ركّب أذرع الحامل على الشاشة وهي مقلوبة على سطح ناعم ونظيف.','Fit the mount arms to the screen face-down on a soft, clean surface.'),T('ارفع الشاشة بشخصين (55″ فأكبر)، علّقها، وثبّت براغي أو أقفال الأمان.','Lift with two people (55″+), hang it and fit the safety screws or locks.'),T('رتّب الكابلات وثبّتها بحيث لا تشد الشاشة.','Dress and secure the cables so they don\'t pull on the screen.'),T('شغّل واضبط الاتجاه والإعدادات وفحص الصورة.','Power on, set orientation and settings, and check the picture.')],
+  no:[T('تجاوز الحمل الأقصى للحامل.','Exceeding the mount\'s rated load.'),T('سد مسافات التهوية المحددة في الدليل أو الإدخال في تجويف مغلق.','Blocking the clearances in the manual or recessing into a closed niche.'),T('تدوير الشاشة عموديًا بعكس اتجاه الدليل.','Rotating to portrait against the manual\'s direction.'),T('حمل الشاشة من لوحة العرض نفسها (Panel) أو الضغط على وجهها.','Holding the screen by the panel itself or pressing on its face.'),T('شاشة داخلية خلف زجاج تحت شمس مباشرة.','An indoor screen behind glass in direct sun.')],
+  chk:[T('الشاشة مستوية بالميزان','Screen level with a spirit level'),T('أقفال الأمان مركبة','Safety locks fitted'),T('لا كابلات ظاهرة','No visible cables'),T('الاتجاه والإعدادات صحيحة','Orientation and settings correct')]},
+ {id:'vw',n:T('الجدار المرئي (Video Wall)','Video Wall'),spec:['46″ / 55″','Bezel 0.88–3.5 mm','Pop-out mounts','24/7'],
+  intro:T('هنا الدقة بالمليمتر. فرق بسيط في الاستواء يظهر كخط واضح بين الشاشات ويفسد الصورة كلها.','Here precision is in millimetres. A small level difference shows as a visible line between panels and ruins the whole image.'),
+  pre:[T('الجدار مستوٍ تمامًا (افحصه بالمسطرة على كامل المساحة).','The wall is truly flat (check with a straight-edge over the whole area).'),T('مخطط يحدد موقع كل شاشة ورقمها التسلسلي.','A layout plan with every panel\'s position and serial number.'),T('حوامل Pop-out مخصصة للجدار المرئي مع ضبط دقيق للعمق والارتفاع.','Dedicated video wall pop-out mounts with fine depth and height adjustment.'),T('كل الشاشات من الدفعة نفسها (Batch) لتطابق الألوان.','All panels from the same batch for colour matching.'),T('عدد كافٍ من نقاط الكهرباء وتهوية للحرارة الناتجة.','Enough power points, and ventilation for the heat produced.')],
+  steps:[T('ارسم خط مرجعي أفقي للصف السفلي بالليزر — هو أساس الجدار كله.','Draw a horizontal reference line for the bottom row with a laser — it is the base of the whole wall.'),T('ركّب حوامل الصف السفلي من المنتصف إلى الأطراف.','Install the bottom-row mounts from the centre outwards.'),T('علّق شاشات الصف السفلي واضبط الفواصل والعمق قبل الشد النهائي.','Hang the bottom row and adjust gaps and depth before final tightening.'),T('اصعد صفًا صفًا بالطريقة نفسها.','Work up row by row the same way.'),T('وصّل الكابلات حسب مخطط التوصيل (Loop-out) والحدود المسموحة.','Connect cables per the loop-out diagram and its limits.'),T('اضبط رقم ID لكل شاشة وإعدادات الجدار (Video Wall layout).','Set each panel\'s ID and the video wall layout.'),T('عاير السطوع والألوان حتى تتطابق الشاشات.','Calibrate brightness and colour until panels match.')],
+  no:[T('شد الحوامل نهائيًا قبل ضبط الصف بالكامل.','Final-tightening mounts before the whole row is aligned.'),T('اصطدام حواف الشاشات ببعضها أثناء التعليق — الحافة الرقيقة تكسر اللوحة.','Panel edges knocking each other while hanging — the thin bezel cracks the panel.'),T('خلط شاشات من دفعات مختلفة.','Mixing panels from different batches.'),T('تجاوز عدد الشاشات المسموح في التوصيل المتسلسل.','Exceeding the allowed number of panels in a daisy chain.')],
+  chk:[T('الفواصل متساوية ولا تمدد بين الشاشات','Even gaps and no step between panels'),T('الألوان متطابقة بصورة بيضاء ورمادية','Colours match on white and grey'),T('IDs صحيحة والصورة متصلة','IDs correct and image continuous'),T('خريطة الأرقام التسلسلية مسلّمة','Serial number map handed over')]},
+ {id:'led-in',n:T('LED داخلي','Indoor LED'),spec:['P0.9–P2.5','Cabinets / Modules','Front / Rear service'],
+  intro:T('تركيب هندسي يعتمد على هيكل وتوزيع كهرباء وخريطة بيانات. الشاشة تُبنى من كبائن، وترتيبها جزء من التصميم.','An engineered installation that depends on a structure, power distribution and a data map. The screen is built from cabinets, and their order is part of the design.'),
+  pre:[T('هيكل حديدي أو جدار معتمد هندسيًا للوزن.','A steel frame or wall structurally approved for the weight.'),T('تحديد الصيانة من الأمام أو الخلف — الخلفية تحتاج ممرًا خلف الشاشة.','Front or rear service decided — rear service needs a walkway behind.'),T('مخطط توزيع الكهرباء ومخطط البيانات (Mapping) لبطاقة الإرسال والاستقبال.','Power distribution plan and data mapping for sending and receiving cards.'),T('الوحدات تُخزّن في مكان جاف، وتأخذ وقتًا لتتأقلم مع حرارة الغرفة قبل التشغيل.','Modules stored dry, and given time to adapt to room temperature before power-up.')],
+  steps:[T('ركّب الهيكل وافحص الاستواء والعمودية على كامل المساحة.','Install the frame and check level and plumb across the whole area.'),T('ركّب الكبائن حسب أرقامها في المخطط، الصف السفلي أولًا من المنتصف.','Mount cabinets by their numbers on the plan, bottom row first from the centre.'),T('اربط الكبائن بعضها ببعض بالأقفال وافحص الفواصل والاستواء بين الوحدات.','Lock cabinets together and check seams and flatness between modules.'),T('وصّل الكهرباء والبيانات حسب المخطط تمامًا.','Connect power and data exactly per the plan.'),T('وصّل المعالج (Video Processor / Controller) وحمّل ملف الإعداد.','Connect the processor/controller and load the configuration file.'),T('شغّل تدريجيًا بسطوع منخفض بعد التخزين الطويل (Aging) ثم ارفع.','Power up gradually at low brightness after long storage (aging), then raise it.'),T('اختبر بالصور والمعايرة.','Test with patterns and calibrate.')],
+  no:[T('لمس سطح LED بالأصابع أو الضغط عليه — الثنائيات تنكسر بسهولة.','Touching or pressing the LED face — the diodes break easily.'),T('العمل بدون قفازات ESD.','Working without ESD gloves.'),T('التشغيل بأقصى سطوع مباشرة بعد تخزين طويل أو رطوبة.','Running full brightness straight after long storage or humidity.'),T('تبديل ترتيب الكبائن عن المخطط.','Changing the cabinet order from the plan.')],
+  chk:[T('لا خطوط داكنة أو فاتحة عند الفواصل','No dark or bright lines at seams'),T('كل الوحدات تعمل بلا بكسلات ميتة','All modules working, no dead pixels'),T('التأريض متصل','Earthing connected'),T('وحدات احتياطية من الدفعة نفسها مسلّمة','Spare modules from the same batch handed over')]},
+ {id:'led-out',n:T('LED خارجي','Outdoor LED'),spec:['P3.9–P10','IP65 / IP66','Wind load','Earthing'],
+  intro:T('أعلى تركيب خطورة: وزن كبير، ارتفاع، رياح، مطر، وكهرباء خارجية. لا يبدأ قبل المخطط الإنشائي والتصاريح.','The highest-risk installation: heavy weight, height, wind, rain and outdoor power. It does not start before the structural design and permits.'),
+  pre:[T('تصميم إنشائي معتمد من مهندس (أحمال الرياح والأساسات).','Structural design approved by an engineer (wind loads and foundations).'),T('تصاريح البلدية والجهات المختصة.','Municipality and authority permits.'),T('لوحة كهرباء مستقلة مع قواطع وحماية من الصواعق (SPD).','A dedicated distribution board with breakers and surge protection (SPD).'),T('رافعة ومشغّل مؤهل، وخطة رفع.','A crane with a certified operator, and a lifting plan.'),T('اتجاه الشاشة بالنسبة للشمس والتهوية أو التبريد.','Screen orientation relative to the sun, and ventilation or cooling.')],
+  steps:[T('استلم الأساسات والهيكل وافحص الاستواء.','Accept the foundations and structure and check level.'),T('ارفع الكبائن بالرافعة وثبّتها حسب المخطط.','Lift cabinets with the crane and fix them per the plan.'),T('أحكم إغلاق كل الوصلات بمدخل الكابلات المقاوم للماء (Cable Glands).','Seal every connection with waterproof cable glands.'),T('اربط كل كابينة والهيكل بالتأريض وبنظام الحماية من الصواعق.','Bond every cabinet and the structure to earth and the lightning protection.'),T('وصّل لوحة الكهرباء وحساس الإضاءة للتحكم التلقائي بالسطوع.','Connect the distribution board and the light sensor for automatic brightness.'),T('اختبر التشغيل وافحص الإغلاق المائي.','Test operation and inspect the weather sealing.')],
+  no:[T('العمل في رياح قوية أو مطر أو بدون حزام أمان.','Working in strong wind, rain, or without a harness.'),T('إهمال التأريض أو حماية الصواعق.','Skipping earthing or lightning protection.'),T('ترك أي منفذ مفتوح حتى لو غير مستخدم.','Leaving any port open, even if unused.'),T('توجيه الكابلات للأعلى نحو الوصلة — اصنع حلقة تصريف (Drip Loop).','Routing cables upward into a connector — make a drip loop.')],
+  chk:[T('التأريض مقاس ومسجّل','Earthing measured and recorded'),T('كل الوصلات مغلقة ومحكمة','All connections sealed'),T('السطوع يتغير تلقائيًا ليلًا ونهارًا','Brightness adjusts day and night'),T('صور الهيكل واللوحة الكهربائية','Photos of the structure and distribution board')]},
+ {id:'rental',n:T('LED للإيجار والفعاليات','Rental / event LED'),spec:['Hanging / Ground stack','Locking pins','Curve locks'],
+  intro:T('تركيب وتفكيك سريع، لكن السرعة لا تعني التساهل. الشاشة المعلقة فوق جمهور هي مسؤولية سلامة مباشرة.','Fast rigging and de-rigging, but speed is not an excuse. A screen hung over an audience is a direct safety responsibility.'),
+  pre:[T('حد التعليق الأقصى (عدد الكبائن عموديًا) من المصنّع.','Maximum hanging height (cabinets vertically) from the manufacturer.'),T('نقطة تعليق معتمدة (Truss / Rigging point) بحمل معروف.','An approved hanging point (truss / rigging point) with a known load.'),T('مسؤول تعليق (Rigger) مؤهل للفعاليات الكبيرة.','A qualified rigger for large events.')],
+  steps:[T('ركّب عارضة التعليق (Hanging Bar) أو قاعدة الرص الأرضي.','Fit the hanging bar or the ground-stack base.'),T('اربط الكبائن عموديًا وأدخل مسامير القفل وتأكد من إغلاقها.','Connect cabinets vertically, insert locking pins and confirm they are closed.'),T('اضبط زوايا الانحناء إذا كانت الشاشة منحنية.','Set curve angles if the screen is curved.'),T('ركّب حبال الأمان الثانوية (Safety Cables).','Fit secondary safety cables.'),T('افحص كل قفل قبل الرفع، وارفع ببطء.','Check every lock before lifting, and lift slowly.')],
+  no:[T('تجاوز عدد الكبائن المسموح في التعليق.','Exceeding the allowed number of hanging cabinets.'),T('رفع الشاشة مع وجود أشخاص تحتها.','Lifting the screen with people underneath.'),T('التشغيل في الخارج مع رياح تتجاوز حد المصنّع.','Operating outdoors in wind above the manufacturer\'s limit.')],
+  chk:[T('كل الأقفال مغلقة ومُراجعة','All locks closed and double-checked'),T('حبال الأمان مركبة','Safety cables fitted'),T('الكبائن تعود لصناديقها مرقّمة بعد الفك','Cabinets return to flight cases numbered')]},
+ {id:'flex',n:T('LED مرنة ومنحنية','Flexible / curved LED'),spec:['P1.5–P4','Magnetic','Bend radius'],
+  intro:T('تُلف حول الأعمدة والزوايا. نجاحها في الهيكل الخلفي الدقيق ونصف قطر الانحناء الصحيح.','Wraps around columns and corners. Success depends on an accurate backing structure and the correct bending radius.'),
+  pre:[T('هيكل خلفي حديدي (أو لوح معدني) بشكل الانحناء نفسه بدقة.','A steel backing frame (or metal sheet) matching the curve precisely.'),T('نصف قطر الانحناء ضمن ما تتحمله الوحدة حسب المواصفات.','Bending radius within what the module allows per spec.'),T('مخطط ترتيب الوحدات.','Module layout plan.')],
+  steps:[T('افحص شكل الهيكل الخلفي بالقالب أو القياس.','Check the backing shape with a template or measurement.'),T('ثبّت الوحدات بالمغناطيس حسب الترتيب بدءًا من خط مرجعي.','Attach modules magnetically in order from a reference line.'),T('اضبط الفواصل بين الوحدات على الانحناء.','Adjust seams between modules along the curve.'),T('وصّل الكهرباء والبيانات واختبر.','Connect power and data and test.')],
+  no:[T('ثني الوحدة أكثر من نصف القطر المسموح.','Bending a module beyond its allowed radius.'),T('هيكل خلفي غير منتظم يترك فراغات.','An uneven backing that leaves gaps.')],
+  chk:[T('الانحناء منتظم بلا فراغات','Smooth curve with no gaps'),T('الفواصل غير ظاهرة على صورة بيضاء','Seams not visible on white')]},
+ {id:'kiosk',n:T('الأكشاك','Kiosks'),spec:['32″–75″','Self Kiosk 24″','Floor anchoring'],
+  intro:T('الكشك يقف بين الناس ويتعرض للدفع والاتكاء. ثباته على الأرض أهم شيء.','A kiosk stands among people and gets pushed and leaned on. Its stability on the floor is what matters most.'),
+  pre:[T('نوع الأرضية (رخام، بلاط، سجاد، أرضية مرتفعة).','Floor type (marble, tile, carpet, raised floor).'),T('مسار الكهرباء والشبكة من الأرض أو مجرى قريب.','Power and data route through the floor or nearby trunking.'),T('موافقة العميل على التثبيت بالأرض (حفر في الرخام).','Client approval to anchor into the floor (drilling marble).')],
+  steps:[T('ضع الكشك في الموقع واضبط الاستواء بالأرجل.','Place the kiosk and level it with the feet.'),T('ثبّته بالأرض بالبراغي (مضاد للانقلاب)، خاصة الأكشاك الطويلة وثنائية الوجه.','Anchor it to the floor (anti-tip), especially tall and double-sided units.'),T('أدخل الكابلات من الأسفل بدون أن تظهر.','Bring cables in from below without them showing.'),T('للكشك الذاتي: ركّب الطابعة والورق، ووصّل جهاز الدفع عن طريق الفني المعتمد من البنك.','Self kiosk: fit the printer and paper; the payment terminal is connected by the bank\'s certified technician.'),T('عاير اللمس واختبر التطبيق.','Calibrate touch and test the app.')],
+  no:[T('ترك الكشك بلا تثبيت في مكان عام.','Leaving a kiosk unanchored in a public place.'),T('سد فتحات تهوية الكشك أو وضعه ملاصقًا للجدار.','Blocking kiosk vents or placing it flush against a wall.')],
+  chk:[T('الكشك لا يهتز عند الدفع','Kiosk doesn\'t move when pushed'),T('اللمس دقيق في الزوايا','Touch accurate in the corners'),T('الطابعة والدفع يعملان','Printer and payment work')]},
+ {id:'flip',n:T('شاشة Flip وقاعات الاجتماعات','Flip and meeting rooms'),spec:['55″–86″','Mobile / Wall'],
+  intro:T('تُستخدم للكتابة باللمس، فالارتفاع يحدده المستخدم الواقف، لا المشاهد الجالس.','Used for touch writing, so the height is set by the standing user, not the seated viewer.'),
+  pre:[T('هل التركيب على حامل متحرك أم على الجدار؟','Mobile stand or wall mount?'),T('شبكة الاجتماعات وطريقة مشاركة الشاشة.','Meeting network and screen-sharing method.')],
+  steps:[T('الحامل المتحرك: جمّعه حسب الدليل وشد كل البراغي، ثم اقفل العجلات.','Mobile stand: assemble per the manual, tighten every bolt, then lock the wheels.'),T('الجدار: ارتفاع يسمح بالكتابة براحة في أعلى الشاشة وأسفلها.','Wall: a height that allows comfortable writing at the top and bottom of the screen.'),T('اربطها بالشبكة واضبط المشاركة والحسابات.','Connect to the network and set up sharing and accounts.')],
+  no:[T('تحريك الشاشة على الحامل والعجلات مقفلة أو على أرض مائلة.','Moving the stand with wheels locked or on a slope.')],
+  chk:[T('الكتابة مريحة لمستخدم واقف','Writing is comfortable for a standing user'),T('المشاركة اللاسلكية تعمل','Wireless sharing works')]},
+ {id:'hotel',n:T('شاشات الضيافة','Hospitality TV'),spec:['Hotel mode','Clone','IPTV'],
+  intro:T('مئات الغرف، والمطلوب أن تكون كلها متطابقة. السر في إعداد شاشة واحدة ونسخها.','Hundreds of rooms that must all be identical. The key is to configure one TV and clone it.'),
+  pre:[T('جدول الغرف ومقاس كل نوع.','Room schedule and size per room type.'),T('ملف الإعدادات المعتمد (القنوات، رسالة الترحيب، الحد الأقصى للصوت).','Approved settings file (channels, welcome message, max volume).'),T('تنسيق مع إدارة الفندق لأوقات دخول الغرف.','Coordination with hotel management for room access times.')],
+  steps:[T('جهّز شاشة نموذجية واعتمدها مع الفندق.','Configure a sample TV and get the hotel\'s approval.'),T('انسخ الإعدادات للبقية (USB أو عبر الشبكة).','Clone settings to the rest (USB or network).'),T('ركّب بالحامل وأخفِ الكابلات.','Mount and conceal the cables.'),T('سجّل رقم الغرفة مع الرقم التسلسلي.','Record room number with serial number.')],
+  no:[T('ترك الغرفة بغبار أو بقايا تغليف.','Leaving a room with dust or packaging.'),T('اختلاف الإعدادات بين الغرف.','Different settings between rooms.')],
+  chk:[T('رسالة الترحيب والقنوات صحيحة','Welcome message and channels correct'),T('الإعدادات مقفلة عن النزيل','Settings locked from guests'),T('جدول غرف وأرقام تسلسلية','Room and serial list')]},
+ {id:'dt',n:T('الدرايف ثرو والتعليق بالسقف','Drive-thru and ceiling mounts'),spec:['2500–3000 nits','Pedestal','Safety wire'],
+  intro:T('نوعان من التركيب يحملان وزنًا في مكان غير معتاد: قاعدة خارجية على الأرض، أو شاشة معلقة من السقف فوق الناس.','Two installations that carry weight in unusual places: an outdoor ground pedestal, or a screen hung from the ceiling above people.'),
+  pre:[T('الدرايف ثرو: قاعدة خرسانية بمسامير تثبيت ومواسير كهرباء وشبكة مدفونة.','Drive-thru: a concrete base with anchor bolts and buried power and data conduits.'),T('السقف: تأكد أن التثبيت في سقف إنشائي (خرسانة أو كمرات)، لا في السقف المستعار.','Ceiling: fixing into the structural ceiling (concrete or beams), never the false ceiling.'),T('ارتفاع خالٍ تحت الشاشة المعلقة يناسب حركة الناس والعربات.','Enough clear height under a hung screen for people and trolleys.')],
+  steps:[T('الدرايف ثرو: ثبّت القاعدة، أدخل الكابلات من الأسفل، ركّب الشاشة، واضبط الاتجاه لتجنب انعكاس الشمس.','Drive-thru: fix the pedestal, feed cables from below, mount the screen and angle it to avoid sun glare.'),T('السقف: ثبّت الحامل أو القضبان المسننة، علّق الشاشة، ثم أضف سلك أمان ثانويًا مستقلًا.','Ceiling: fix the mount or threaded rods, hang the screen, then add an independent secondary safety wire.'),T('افحص الصوت (للدرايف ثرو) وجدولة المحتوى.','Test the audio (drive-thru) and content scheduling.')],
+  no:[T('تعليق شاشة من السقف المستعار.','Hanging a screen from a false ceiling.'),T('شاشة سقف بلا سلك أمان ثانوي.','A ceiling screen without a secondary safety wire.'),T('شاشة داخلية في الدرايف ثرو.','An indoor screen in a drive-thru.')],
+  chk:[T('القاعدة ثابتة والمداخل مغلقة','Pedestal solid and entries sealed'),T('سلك الأمان مركّب','Safety wire fitted'),T('لا انعكاس شمس على الشاشة وقت الذروة','No sun glare at peak hours')]},
+];
+let typeSel='lcd',tabSel='pre';
+function renderType(){const pick=document.getElementById('typePick');
+  pick.innerHTML=types.map(t=>`<button class="chip" role="tab" aria-pressed="${t.id===typeSel}" data-t="${t.id}">${t.n}</button>`).join('');
+  pick.querySelectorAll('button').forEach(b=>b.onclick=()=>{typeSel=b.dataset.t;renderType();});
+  const t=types.find(x=>x.id===typeSel);
+  const tabs=[['pre',T('قبل البدء','Before you start')],['steps',T('خطوات التركيب','Installation steps')],['no',T('ممنوعات','Don\'ts')],['chk',T('فحص قبل المغادرة','Check before leaving')]];
+  let body='';
+  if(tabSel==='pre')body=`<ul class="list">${t.pre.map(x=>`<li>${x}</li>`).join('')}</ul>`;
+  if(tabSel==='steps')body=`<ol class="steps">${t.steps.map(x=>`<li>${x}</li>`).join('')}</ol>`;
+  if(tabSel==='no')body=`<ul class="no">${t.no.map(x=>`<li>${x}</li>`).join('')}</ul>`;
+  if(tabSel==='chk')body=`<div class="checks">${t.chk.map((x,i)=>`<label><input type="checkbox" id="tc-${t.id}-${i}"><span>${x}</span></label>`).join('')}</div>`;
+  document.getElementById('typeCard').innerHTML=`<header><h3>${t.n}</h3><div class="spec">${t.spec.map(s=>`<span>${s}</span>`).join('')}</div><p>${t.intro}</p></header>
+   <div class="tabs" role="tablist">${tabs.map(([k,l])=>`<button role="tab" aria-selected="${k===tabSel}" data-k="${k}">${l}</button>`).join('')}</div><div class="tabpane">${body}</div>`;
+  document.querySelectorAll('#typeCard .tabs button').forEach(b=>b.onclick=()=>{tabSel=b.dataset.k;renderType();});}
+
+/* ---------- calculators ---------- */
+const $=id=>document.getElementById(id);const f=(n,d=2)=>Number.isFinite(n)?n.toFixed(d):'—';
+function out(el,rows){el.innerHTML=rows.map(([l,v])=>`<div><small>${l}</small><b>${v}</b></div>`).join('');}
+function renderCalcs(){
+  // height
+  const d=+$('h-size').value,ori=$('h-ori').value,use=$('h-use').value,dist=+$('h-dist').value;
+  const k=Math.sqrt(337);let W=d*0.0254*16/k,H=d*0.0254*9/k;if(ori==='p'){[W,H]=[H,W];}
+  const eye={seat:1.2,stand:1.6,crowd:1.6,touch:1.6}[use];
+  let c={seat:1.2,stand:1.6,crowd:0,touch:1.25}[use];
+  if(use==='crowd')c=Math.max(2.1+H/2,1.6);
+  if(use==='seat')c=Math.max(1.2,H/2+0.75);
+  if(use==='touch')c=Math.max(1.25,H/2+0.8);
+  const bottom=c-H/2,top=c+H/2,ang=Math.atan((c-eye)/Math.max(dist,0.1))*180/Math.PI;
+  out($('h-out'),[[T('عرض الشاشة','Screen width'),f(W)+' m'],[T('ارتفاع الشاشة','Screen height'),f(H)+' m'],[T('ارتفاع المنتصف المقترح','Suggested centre height'),f(c)+' m'],[T('الحافة السفلية','Bottom edge'),f(bottom)+' m'],[T('الحافة العلوية','Top edge'),f(top)+' m'],[T('زاوية النظر للأعلى','Upward viewing angle'),f(ang,0)+'°']]);
+  const v=$('h-v');
+  if(use==='crowd'){v.className='verdict ok';v.innerHTML=T('الحافة السفلية فوق 2 م لتبقى ظاهرة فوق رؤوس الناس وآمنة من الاصطدام.','Bottom edge above 2 m so it stays visible over heads and clear of impact.');}
+  else if(ang>20){v.className='verdict bad';v.innerHTML=T('الزاوية كبيرة: المشاهد سيرفع رأسه كثيرًا. أخفض الشاشة أو زد المسافة.','Steep angle: the viewer will strain upward. Lower the screen or increase distance.');}
+  else if(ang>12){v.className='verdict mid';v.innerHTML=T('مقبول، لكن قريب من الحد المريح. فكّر في إمالة بسيطة للأسفل.','Acceptable but near the comfort limit. Consider a slight downward tilt.');}
+  else{v.className='verdict ok';v.innerHTML=T('زاوية نظر مريحة. اعتمد الارتفاع مع العميل كتابيًا.','Comfortable viewing angle. Confirm the height with the client in writing.');}
+  // load
+  const w=+$('l-w').value,add=+$('l-add').value,r=+$('l-r').value,sf=+$('l-sf').value,ty=$('l-type').value;
+  const tot=w+add,need=tot*sf,use2=r>0?tot/r*100:NaN;
+  out($('l-out'),[[T('الحمل الكلي','Total load'),f(tot,1)+' kg'],[T('السعة المطلوبة مع الهامش','Required capacity incl. margin'),f(need,1)+' kg'],[T('نسبة استخدام الحامل','Mount utilisation'),f(use2,0)+'%']]);
+  const lv=$('l-v');const extra=ty==='arm'?T(' الذراع المتحرك يضاعف العزم على الجدار عند فتحه بالكامل — تأكد من الجدار والبراغي.',' A full-motion arm multiplies the force on the wall when fully extended — check the wall and anchors.'):ty==='ceil'?T(' للسقف: سلك أمان ثانوي إلزامي.',' Ceiling: a secondary safety wire is mandatory.'):'';
+  if(tot>r){lv.className='verdict bad';lv.innerHTML=T('مرفوض: الوزن يتجاوز سعة الحامل. اختر حاملًا أقوى.','Rejected: weight exceeds the mount rating. Choose a stronger mount.')+extra;}
+  else if(need>r){lv.className='verdict mid';lv.innerHTML=T('ضمن السعة لكن بدون الهامش المطلوب. يُفضَّل اختيار حامل بسعة أعلى.','Within rating but without the required margin. A higher-rated mount is preferred.')+extra;}
+  else{lv.className='verdict ok';lv.innerHTML=T('مقبول بالهامش المطلوب. تذكّر: الجدار والبراغي يجب أن تتحمّل الحمل نفسه.','Accepted with the required margin. Remember: the wall and anchors must carry the same load.')+extra;}
+  // power
+  const pw=+$('p-w').value,ph=+$('p-h').value,mx=+$('p-max').value,phase=$('p-ph').value;
+  const A=pw*ph,Pmax=A*mx,Pavg=Pmax/3,I=phase==='1'?Pmax/230:Pmax/(Math.sqrt(3)*400*0.95);
+  const circ=Math.ceil(Pmax/(16*0.8*230));
+  out($('p-out'),[[T('المساحة','Area'),f(A,2)+' m²'],[T('أقصى استهلاك','Max power'),f(Pmax/1000,2)+' kW'],[T('متوسط تقريبي','Approx. average'),f(Pavg/1000,2)+' kW'],[phase==='1'?T('التيار الأقصى','Max current'):T('التيار لكل طور','Current per phase'),f(I,1)+' A'],[T('دوائر 16A تقريبًا','≈ 16A circuits'),String(circ)]]);
+}
+['h-size','h-ori','h-use','h-dist','l-w','l-add','l-r','l-sf','l-type','p-w','p-h','p-max','p-ph'].forEach(id=>$(id).addEventListener('input',renderCalcs));
+$('p-env').addEventListener('change',()=>{$('p-max').value=$('p-env').value==='out'?900:600;renderCalcs();});
+
+/* ---------- scenarios ---------- */
+const cases=[
+ {q:T('وصلت لتركيب شاشة 75″ في مكتب، واكتشفت أن الجدار جبس بورد بدون أي دعامة. والعميل على عجلة ويريد تركيبها اليوم.','You arrive to mount a 75″ screen in an office and find the wall is gypsum board with no backing. The client is in a hurry and wants it today.'),
+  o:[{t:T('أركّبها بمثبّتات بلاستيكية عادية، فالجبس سميك.','Install with regular plastic plugs; the gypsum is thick.'),g:0,r:T('خطأ خطير. الجبس ينهار تحت هذا الوزن خلال أيام أو أسابيع، والشاشة تسقط.','A serious mistake. Gypsum gives way under this weight within days or weeks and the screen falls.')},
+     {t:T('أبحث عن القوائم المعدنية بالكاشف، وإذا لم تكن في المكان المناسب أوقف وأقترح دعامة أو حاملًا أرضيًا وأبلغ مدير المشروع.','Locate the studs with a detector; if they aren\'t where needed, stop, propose backing or a floor stand, and inform the project manager.'),g:2,r:T('صحيح. سلامة التركيب أولًا، وتقديم حل بديل يحافظ على علاقة العميل.','Correct. Safety comes first, and offering an alternative keeps the client relationship.')},
+     {t:T('أستخدم براغي الفراشة (Toggle) لأنها الحل الأسرع.','Use toggle bolts — quickest fix.'),g:1,r:T('أفضل من البلاستيك لكنه غير كافٍ لشاشة 75″ على حامل؛ الحمل يقع على الجبس نفسه.','Better than plastic plugs but not enough for a 75″ on a mount; the load still sits on the gypsum.')}]},
+ {q:T('أثناء رفع كبائن LED خارجية بالرافعة، بدأت الرياح تشتد والكابينة تتأرجح.','While lifting outdoor LED cabinets with a crane, the wind picks up and the cabinet starts swinging.'),
+  o:[{t:T('نُكمل العمل بسرعة قبل أن يسوء الطقس.','Finish quickly before the weather gets worse.'),g:0,r:T('هذا ما يسبب الحوادث. السرعة في الرياح تزيد الخطر.','This is how accidents happen. Rushing in wind increases the risk.')},
+     {t:T('أوقف الرفع، أنزل الكابينة بأمان، أؤمّن المنطقة، وأستأنف عندما تنخفض الرياح.','Stop lifting, lower the cabinet safely, secure the area, and resume when wind drops.'),g:2,r:T('صحيح. حق الإيقاف موجود لهذا الموقف بالضبط.','Correct. The right to stop exists for exactly this situation.')},
+     {t:T('أطلب من زميل أن يمسك الكابينة بحبل من الأرض.','Ask a colleague to hold the cabinet with a rope from the ground.'),g:1,r:T('حبل التوجيه (Tag line) مفيد في الظروف العادية، لكنه لا يجعل الرفع في رياح قوية آمنًا.','A tag line helps in normal conditions but doesn\'t make lifting in strong wind safe.')}]},
+ {q:T('بعد تركيب جدار مرئي 3×3، ظهر فرق واضح في لون شاشة واحدة عن الباقي.','After installing a 3×3 video wall, one panel shows a visible colour difference from the rest.'),
+  o:[{t:T('أسلّم المشروع، فالفرق بسيط ولن يلاحظه العميل.','Hand over; the difference is small and the client won\'t notice.'),g:0,r:T('سيلاحظه. فرق اللون في الجدار المرئي أول ما تراه العين.','He will. Colour difference in a video wall is the first thing the eye catches.')},
+     {t:T('أتحقق من رقم الدفعة والإعدادات وأعمل معايرة، وإن بقي الفرق أطلب بديلًا من الدفعة نفسها وأكتبه في محضر الملاحظات.','Check the batch number and settings, run calibration; if it remains, request a replacement from the same batch and log it on the snag list.'),g:2,r:T('صحيح. ابدأ بالأسباب البسيطة، ووثّق ما يحتاج متابعة.','Correct. Start with simple causes and document what needs follow-up.')},
+     {t:T('أرفع سطوع الشاشة المختلفة يدويًا حتى تقترب.','Manually raise that panel\'s brightness until it\'s closer.'),g:1,r:T('قد يقرّب الشكل مؤقتًا، لكن بدون معايرة صحيحة سيظهر الفرق في ألوان أخرى.','It may look closer for now, but without proper calibration the difference shows in other colours.')}]},
+ {q:T('العميل يطلب منك أثناء التركيب نقل شاشتين لغرفة أخرى وتركيب شاشة ثالثة لم تكن في العرض.','During installation the client asks you to move two screens to another room and install a third screen that wasn\'t in the quotation.'),
+  o:[{t:T('أنفّذ كل شيء، العميل دائمًا على حق.','Do it all; the client is always right.'),g:0,r:T('تغيير المواقع يغيّر الكهرباء والشبكة والمخطط، والعمل الإضافي غير مسعّر. هذا يخلق مشاكل لاحقًا.','Moving positions changes power, network and the drawing, and extra work isn\'t priced. This creates problems later.')},
+     {t:T('أرحّب بالطلب، أسجّله، وأحوّله فورًا لمدير المشروع لاعتماد التغيير وتسعير الإضافة، وأكمل العمل المعتمد.','Welcome the request, note it, pass it straight to the project manager to approve the change and price the extra, and continue the approved work.'),g:2,r:T('صحيح. احترام العميل مع حماية الشركة من عمل غير معتمد.','Correct. Respect for the client while protecting the company from unapproved work.')},
+     {t:T('أرفض الطلب لأنه خارج نطاق العمل.','Refuse; it\'s out of scope.'),g:1,r:T('صحيح أنه خارج النطاق، لكن الرفض المباشر يضر العلاقة. حوّله إلى الجهة المختصة بدلًا من رفضه.','It is out of scope, but a flat refusal hurts the relationship. Route it instead of refusing.')}]},
+];
+let caseAns=store.get('cases',{});
+function renderCases(){$('caseBox').innerHTML=cases.map((c,i)=>{const a=caseAns[i];return `<div class="q"><h4>${T('الموقف','Scenario')} ${i+1}: ${c.q}</h4>${c.o.map((o,j)=>`<button class="opt ${a===j?(o.g===2?'right':'wrong'):''}" data-c="${i}" data-o="${j}">${o.t}</button>`).join('')}${a!=null?`<div class="fb verdict ${c.o[a].g===2?'ok':c.o[a].g===1?'mid':'bad'}">${c.o[a].r}</div>`:''}</div>`}).join('');
+  $('caseBox').querySelectorAll('.opt').forEach(b=>b.onclick=()=>{caseAns[b.dataset.c]=+b.dataset.o;store.set('cases',caseAns);renderCases();});}
+
+/* ---------- quiz ---------- */
+const quiz=[
+ [T('ما أول ما تحدده قبل اختيار نوع البراغي؟','What do you determine first before choosing anchors?'),[T('لون الجدار','Wall colour'),T('نوع الجدار','Wall type'),T('مقاس الشاشة فقط','Screen size only')],1],
+ [T('شاشة 75″ على جدار جبس بدون دعامة. ما التصرف الصحيح؟','A 75″ screen on gypsum with no backing. What\'s right?'),[T('مثبّتات بلاستيكية','Plastic plugs'),T('التثبيت على القوائم أو دعامة، أو حل بديل','Fix into studs or backing, or an alternative'),T('شريط لاصق قوي','Strong adhesive tape')],1],
+ [T('في الجدار المرئي، من أين تبدأ التركيب؟','Where do you start a video wall?'),[T('الصف العلوي','The top row'),T('الصف السفلي من المنتصف للأطراف','Bottom row, centre outwards'),T('من أي زاوية','Any corner')],1],
+ [T('متى تشد حوامل الجدار المرئي نهائيًا؟','When do you final-tighten video wall mounts?'),[T('فور تعليق كل شاشة','As soon as each panel is hung'),T('بعد ضبط الصف بالكامل','After the whole row is aligned'),T('لا داعي للشد','No need to tighten')],1],
+ [T('ما معنى VESA 400×400؟','What does VESA 400×400 mean?'),[T('وزن الشاشة','Screen weight'),T('المسافة بين فتحات البراغي خلف الشاشة بالمليمتر','Distance between rear screw holes in mm'),T('دقة الشاشة','Screen resolution')],1],
+ [T('بعد تخزين وحدات LED الداخلية طويلًا في رطوبة، كيف تشغّلها؟','After LED modules were stored long in humidity, how do you power them?'),[T('بأقصى سطوع فورًا','Full brightness immediately'),T('تدريجيًا بسطوع منخفض ثم ترفع','Gradually at low brightness, then raise'),T('لا تُشغّل أبدًا','Never power them')],1],
+ [T('ما الإلزامي لكل كابينة LED خارجية؟','What is mandatory for every outdoor LED cabinet?'),[T('ملصق الشركة','Company sticker'),T('التأريض والإغلاق المائي','Earthing and weather sealing'),T('لون الهيكل','Frame colour')],1],
+ [T('ما الطول الأقصى المعتاد لكابل شبكة Cat6 بدون تقوية؟','What is the usual max Cat6 run without a repeater?'),[T('30 م','30 m'),T('100 م','100 m'),T('500 م','500 m')],1],
+ [T('أين يُثبّت حامل شاشة معلقة من السقف؟','Where is a ceiling-hung screen fixed?'),[T('في السقف المستعار','In the false ceiling'),T('في السقف الإنشائي مع سلك أمان ثانوي','In the structural ceiling with a secondary safety wire'),T('في أقرب كشاف إضاءة','In the nearest light fitting')],1],
+ [T('الرياح اشتدت أثناء رفع كبائن خارجية. ماذا تفعل؟','Wind picks up while lifting outdoor cabinets. What do you do?'),[T('تُكمل العمل بسرعة','Finish fast'),T('توقف الرفع وتؤمّن المنطقة','Stop lifting and secure the area'),T('ترفع كابينتين معًا','Lift two at once')],1],
+ [T('أي من هذه يُسقط الضمان؟','Which of these voids the warranty?'),[T('تركيب شاشة داخلية تحت شمس مباشرة','An indoor screen in direct sun'),T('تحديث النظام','Updating firmware'),T('تنظيف الشاشة بقماش ناعم','Cleaning with a soft cloth')],0],
+ [T('ماذا تفعل بطلب إضافي من العميل أثناء التركيب؟','What do you do with an extra request during installation?'),[T('تنفّذه فورًا مجانًا','Do it free immediately'),T('تحوّله لمدير المشروع للاعتماد والتسعير','Route it to the project manager for approval and pricing'),T('ترفضه مباشرة','Refuse it')],1],
+ [T('ما الذي يحدد بداية فترة الضمان عادة؟','What usually marks the start of the warranty?'),[T('تاريخ الشحن من المصنع','Factory shipping date'),T('تاريخ التسليم في محضر الاستلام','Handover date in the acceptance report'),T('تاريخ أول عطل','Date of first fault')],1],
+ [T('شاشة 55″ فأكبر، كم شخصًا يرفعها على الأقل؟','A 55″+ screen is lifted by at least how many people?'),[T('شخص واحد','One'),T('شخصان','Two'),T('لا يهم','Doesn\'t matter')],1],
+ [T('ما الهدف من صور الاختبار (أبيض، أسود، ألوان)؟','What are test patterns (white, black, colours) for?'),[T('عرض للعميل فقط','Just for show'),T('كشف البكسلات الميتة واختلاف الألوان','Reveal dead pixels and colour differences'),T('تسخين الشاشة','Warming up the screen')],1],
+];
+let quizAns=store.get('quiz',{});
+function renderQuiz(){$('quiz').innerHTML=quiz.map((q,i)=>`<div class="q"><h4>${i+1}. ${q[0]}</h4>${q[1].map((o,j)=>`<button class="opt" aria-pressed="${quizAns[i]===j}" style="${quizAns[i]===j?'border-color:var(--brand);background:var(--brand-soft)':''}" data-q="${i}" data-o="${j}">${o}</button>`).join('')}</div>`).join('');
+  $('quiz').querySelectorAll('.opt').forEach(b=>b.onclick=()=>{quizAns[b.dataset.q]=+b.dataset.o;store.set('quiz',quizAns);renderQuiz();});}
+$('qSubmit').onclick=()=>{let s=0;quiz.forEach((q,i)=>{const bs=$('quiz').querySelectorAll(`[data-q="${i}"]`);bs.forEach((b,j)=>{b.style.cssText='';b.classList.toggle('right',j===q[2]);b.classList.toggle('wrong',quizAns[i]===j&&j!==q[2]);});if(quizAns[i]===q[2])s++;});
+  const p=Math.round(s/quiz.length*100),name=($('tname').value||'').trim();const date=new Date().toLocaleDateString(isEn()?'en-GB':'ar-SA');
+  if(p>=80){if(!done.includes('exam')){done.push('exam');store.set('done',done);paintProgress();}
+    $('qResult').innerHTML=`<div class="cert"><div class="eyebrow">Fast Vision</div><h3 style="justify-content:center">${T('شهادة إتمام تدريب قسم التركيبات','Installation Department Training Certificate')}</h3><p>${T('تشهد شركة Fast Vision for Telecommunication &amp; IT بأن','Fast Vision for Telecommunication &amp; IT certifies that')}</p><div class="nm">${name?name.replace(/[<>&]/g,''):T('— اكتب اسمك أعلاه —','— enter your name above —')}</div><p style="max-width:56ch">${T('أتمّ المادة التدريبية لقسم التركيبات بنجاح، وشملت: السلامة المهنية، المعاينة وجاهزية الموقع، التثبيت حسب نوع الجدار، أصول تركيب كل نوع شاشة، الكهرباء والكابلات، والتشغيل والتسليم.','has successfully completed the installation department training, covering safety, site survey and readiness, fixing by wall type, installation rules for each display type, power and cabling, and commissioning and handover.')}</p><p>${T('النتيجة:','Score:')} <b class="num">${p}%</b> · ${T('التاريخ:','Date:')} <b>${date}</b></p><small style="color:var(--muted)">${T('لحفظ الشهادة: التقط صورة للشاشة.','To keep the certificate, take a screenshot.')}</small></div>`;}
+  else{$('qResult').innerHTML=`<div class="verdict bad">${T(`نتيجتك ${p}%. تحتاج 80% للنجاح. راجع الإجابات المظللة وأعد المحاولة.`,`You scored ${p}%. You need 80% to pass. Review the highlighted answers and retry.`)}</div>`;}
+};
+$('qReset').onclick=()=>{quizAns={};store.set('quiz',{});renderQuiz();$('qResult').innerHTML='';};
+$('tname').value=store.get('name','');$('tname').oninput=e=>store.set('name',e.target.value);
+
+/* ---------- glossary ---------- */
+const terms=[
+ ['VESA',T('معيار المسافة بين فتحات التثبيت خلف الشاشة.','Standard spacing of the mounting holes on the back of a screen.')],
+ ['Pop-out Mount',T('حامل جدار مرئي يسمح بسحب الشاشة للأمام للصيانة.','Video wall mount that lets a panel pop forward for service.')],
+ ['Bezel',T('الإطار حول الشاشة، ويحدد الفاصل في الجدار المرئي.','The frame around a screen; sets the gap in a video wall.')],
+ ['Cabinet / Module',T('الكابينة وحدة LED الإنشائية، وتتكون من وحدات أصغر (Modules).','A cabinet is the structural LED unit, made of smaller modules.')],
+ ['Sending / Receiving Card',T('بطاقة الإرسال في المعالج يوزع الصورة على بطاقات الاستقبال داخل الكبائن.','The sending card in the controller feeds the receiving cards inside cabinets.')],
+ ['Mapping',T('خريطة توصيل البيانات وترتيب الكبائن في برنامج التحكم.','The data connection map and cabinet order in the control software.')],
+ ['Aging / Burn-in',T('تشغيل تدريجي بسطوع منخفض لإخراج الرطوبة من وحدات LED.','Gradual low-brightness run to drive humidity out of LED modules.')],
+ ['Calibration',T('معايرة السطوع والألوان لتتطابق الشاشات أو الوحدات.','Matching brightness and colour across panels or modules.')],
+ ['IP65 / IP66',T('درجة الحماية من الغبار والماء للتركيبات الخارجية.','Dust and water protection rating for outdoor installations.')],
+ ['Earthing',T('التأريض: توصيل الأجزاء المعدنية بالأرض لحماية الأشخاص والأجهزة.','Connecting metal parts to earth to protect people and equipment.')],
+ ['RCD',T('قاطع يفصل عند وجود تيار متسرب.','A breaker that trips on leakage current.')],
+ ['SPD',T('جهاز حماية من الصواعق وارتفاع الجهد المفاجئ.','Surge protection device against lightning and voltage spikes.')],
+ ['Inrush Current',T('تيار بدء عالٍ لحظة التشغيل قد يفصل القاطع.','High current at switch-on that can trip a breaker.')],
+ ['HDBaseT',T('نقل صورة وصوت لمسافات طويلة عبر كابل شبكة واحد.','Sending video and audio over long distances on one network cable.')],
+ ['Loop-out / Daisy Chain',T('توصيل الشاشات بالتسلسل من شاشة لأخرى.','Connecting screens in series from one to the next.')],
+ ['Cable Gland',T('مدخل كابل محكم يمنع دخول الماء.','A sealed cable entry that keeps water out.')],
+ ['Drip Loop',T('انحناءة في الكابل أسفل نقطة الدخول حتى ينزل الماء بعيدًا عنها.','A dip in the cable below the entry so water drips away.')],
+ ['Safety Wire / Cable',T('سلك أمان ثانوي مستقل يمسك الشاشة إذا فشل الحامل.','An independent secondary wire that holds the screen if the mount fails.')],
+ ['Lockout / Tagout',T('فصل الكهرباء ووضع قفل أو بطاقة لمنع إعادة تشغيلها أثناء العمل.','Isolating power and locking or tagging it to prevent re-energising during work.')],
+ ['PPE',T('معدات الوقاية الشخصية.','Personal protective equipment.')],
+ ['ESD',T('الكهرباء الساكنة التي قد تتلف القطع الإلكترونية.','Electrostatic discharge that can damage electronics.')],
+ ['Method Statement',T('وثيقة تشرح طريقة التنفيذ وإجراءات السلامة قبل بدء العمل.','A document describing how the work is done and its safety measures.')],
+ ['Snag List',T('قائمة الملاحظات المتبقية بعد التركيب مع موعد إغلاقها.','List of remaining items after installation, with a closing date.')],
+ ['Handover Report',T('محضر الاستلام الموقّع من العميل، ويبدأ منه الضمان.','The client-signed acceptance report; the warranty starts from it.')],
+ ['Commissioning',T('التشغيل والبرمجة والاختبار قبل التسليم.','Powering, programming and testing before handover.')],
+ ['Plumb / Level',T('العمودية والاستواء الأفقي.','Vertical alignment and horizontal level.')],
+];
+function renderTerms(){const q=($('gq').value||'').toLowerCase();$('glist').innerHTML=terms.filter(t=>!q||(t[0]+t[1]).toLowerCase().includes(q)).map(t=>`<div><dt>${t[0]}</dt><dd>${t[1]}</dd></div>`).join('');}
+$('gq').oninput=renderTerms;
+
+/* ---------- init ---------- */
+renderWalls();renderType();renderCases();renderQuiz();renderTerms();paintChecks();paintProgress();
+setLang(store.get('lang',false));show(location.hash.slice(1)||'ch1');
+</script>
+
+</body>
+</html>
